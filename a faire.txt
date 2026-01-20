@@ -1,0 +1,4 @@
+Parsing requetes http
+gestion des reponses(status codes, headers, body)
+Implementation des methodes (GET POST DELETE)
+gestions des fichiers statiques, error pages personalise
