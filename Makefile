@@ -1,3 +1,19 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2026/01/21 15:57:46 by aaiache           #+#    #+#              #
+#    Updated: 2026/01/21 16:01:32 by aaiache          ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+GREEN = \033[0;32m
+CYAN = \033[0;36m
+YELLOW = \033[0;33m
+
 NAME        = webserv
 
 CXX         = c++
@@ -16,23 +32,30 @@ OBJS        = $(patsubst $(SRCS_DIR)/%.c++,$(OBJS_DIR)/%.o,$(filter %.c++,$(SRCS
               $(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(filter %.cpp,$(SRCS)))
 
 all: $(NAME)
+	@:
 
 $(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+	@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+	@echo "$(GREEN)-- Compilation terminée avec succès. --\n"
+	@echo "$(CYAN)-> Executable $(NAME) créé.\n"
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c++
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	@echo "$(GREEN)-> Compilation de $<"
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	@echo "$(GREEN)-> Compilation de $<"
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJS_DIR)
+	@echo "$(YELLOW)Suppression des fichiers objets"
+	@rm -rf $(OBJS_DIR)
 
 fclean: clean
-	rm -f $(NAME)
+	@echo "$(YELLOW)Suppression de l'exécutable $(NAME)"
+	@rm -f $(NAME)
 
 re: fclean all
 
