@@ -54,10 +54,19 @@ std::vector<std::string> ConfigParser::tokenize(std::string content){
 	return tokens;
 }
 
-Server ConfigParser::parseServerBlock(std::vector<std::string>::iterator& it)
-{
+Location ConfigParser::parseLocationBlock(std::vector<std::string>::iterator& it){
+
+	Location location;
+
+	location.setPath(*it);
+	return location;
+}
+
+
+Server ConfigParser::parseServerBlock(std::vector<std::string>::iterator& it){
 	Server server;
-	it++;it++;
+	it++;
+	it++;
 	while (*it != "}")
 	{
 		if (*it == "listen")
@@ -114,6 +123,12 @@ Server ConfigParser::parseServerBlock(std::vector<std::string>::iterator& it)
 			error_page.insert(std::make_pair(error_number, error_html));
 			server.setErrorPage(error_page);
 			it++;
+		}
+		else if (*it == "location")
+		{
+			it++;
+			Location location = parseLocationBlock(it);
+			server.addLocation(location);
 		}
 		it++;
 	}
