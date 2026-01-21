@@ -3,10 +3,10 @@ CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
 # Executable name
-NAME = request
+NAME = tokenize
 
 # Source files
-SRCS = request.cpp
+SRCS = mainRequest.cpp tokenizer.cpp checker.cpp
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)

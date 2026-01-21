@@ -1,4 +1,18 @@
-Parsing requetes http
+Parsing requetes http / done
 gestion des reponses(status codes, headers, body)
 Implementation des methodes (GET POST DELETE)
 gestions des fichiers statiques, error pages personalise
+
+
+STATUS codes
+405 method non autorise
+404 not found
+505 si version non autorise
+400 bad request si pas d'host ou probleme de headers
+
+Check a faire
+dans le path verifier si commence par '/'
+pas d'espace autorise
+
+Si il y a un body
+verifier si il y a content-length et lire uniquement cette taille ou si il y a Transfer-Encoding: chunked si les deux en meme temps erreur
