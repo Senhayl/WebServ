@@ -1,37 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerLoop.hpp                                     :+:      :+:    :+:   */
+/*   Loop.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/21 16:54:35 by aaiache           #+#    #+#             */
-/*   Updated: 2026/01/21 16:54:53 by aaiache          ###   ########.fr       */
+/*   Created: 2026/01/22 18:07:01 by aaiache           #+#    #+#             */
+/*   Updated: 2026/01/22 18:08:52 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVERLOOP_HPP
-#define SERVERLOOP_HPP
+#ifndef LOOP_HPP
+#define LOOP_HPP
+#pragma once
 
-#include <iostream>
 #include <vector>
+#include <map>
 #include <poll.h>
-#include <unistd.h>
-#include <cstring>
-#include <netinet/in.h>
+#include "Server.hpp"
+#include "Client.hpp"
 
-class ServerLoop
+class Loop
 {
 	private:
-		int _fd;
-		sockaddr_in _addr; //specifique a ipv4, va servir a bind.
-		std::vector<pollfd> _fds; //creer un vector de pollfd (fds, events = events attendus, revents = evenement detectes)
-	    pollfd _server_poll;
-	public:
-		ServerLoop(/* args */);
-		~ServerLoop();
+		Server& _server;
+		std::vector<pollfd> _fds;
+		std::map<int, Client*> _clients;
+	
+		void acceptClient();
+		void handleClientRead(size_t index);
+		void removeClient(size_t index);
 
-		void setup();
+	public:
+		Loop(Server& server);
+		void run();
 };
 
 #endif
