@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iostream>
+#include <string>
 
 class Location
 {
@@ -18,6 +19,9 @@ class Location
 		bool _autoindex;
 
 	public:
+		Location();
+		~Location();
+
 		// Setters
 		void setAllowedMethods(const std::vector<std::string>& allowedMethods);
 		void addAllowedMethod(const std::string& method);
@@ -43,6 +47,8 @@ class Location
 		size_t getClientMaxBodySize() const;
 		bool getAutoindex() const;
 
-
+		// Convenience overload for legacy call sites.
+		bool isDataValid() const;
+		bool isDataValid(std::vector<std::string>& errs) const;
 	
 };

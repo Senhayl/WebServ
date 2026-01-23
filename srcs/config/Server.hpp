@@ -17,6 +17,7 @@ class Server {
 		std::vector<Location> _locations;
 
 	public:
+		//Setters//
 		void setListen(const std::vector<int>& listen);
 		void addListen(const int port);
 		void setServerName(const std::vector<std::string>& serverName);
@@ -28,6 +29,7 @@ class Server {
 		void setLocation(const std::vector<Location>& location);
 		void addLocation(const Location& location);
 
+		//Getters//
 		const std::vector<int>& getListen() const ;
 		const std::vector<std::string>& getServerName() const ;
 		const std::string& getRoot() const ;
@@ -35,4 +37,7 @@ class Server {
 		const size_t& getMBS() const ;
 		const std::map<int, std::string>& getErrorPage() const ;
 		const std::vector<Location>& getLocation() const;
+
+		bool isDataValid() const;
+		bool isDataValid(std::vector<std::string>& errs) const;
 };
