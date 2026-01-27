@@ -3,10 +3,14 @@ CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
 # Executable name
-NAME = tokenize
+NAME = request_test
 
 # Source files
-SRCS = mainRequest.cpp tokenizer.cpp checker.cpp
+SRCS = mainRequest.cpp \
+       HttpRequest.cpp \
+       RequestParser.cpp \
+       RequestValidator.cpp \
+       ../Response/HttpResponse.cpp
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)
@@ -19,7 +23,7 @@ $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 
 # Compile object files
-%.o: %.cpp request.hpp
+%.o: %.cpp *.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Clean object files
