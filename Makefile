@@ -6,7 +6,7 @@
 #    By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/21 15:57:46 by aaiache           #+#    #+#              #
-#    Updated: 2026/01/21 16:01:32 by aaiache          ###   ########.fr        #
+#    Updated: 2026/01/28 17:12:56 by aaiache          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ OBJS_DIR    = objs
 
 SRCS        = srcs/main.c++ \
               srcs/config/ConfigParser.cpp \
-              srcs/config/Server.cpp \
+              srcs/config/ServerConfig.cpp \
               srcs/config/Location.cpp \
               srcs/config/Config.cpp
 

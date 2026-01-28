@@ -14,12 +14,12 @@ int main(int ac, char **av)
 		Config config = parser.parse(av[1]);
 
 		// Afficher tous les serveurs
-		const std::vector<Server>& servers = config.getServers();
+		const std::vector<ServerConfig>& servers = config.getServers();
 		std::cout << "=== Total Servers: " << servers.size() << " ===" << std::endl << std::endl;
 
 		for (size_t i = 0; i < servers.size(); ++i)
 		{
-			const Server& server = servers[i];
+			const ServerConfig& server = servers[i];
 			std::cout << "--- Server " << i + 1 << " ---" << std::endl;
 
 			// Afficher les ports

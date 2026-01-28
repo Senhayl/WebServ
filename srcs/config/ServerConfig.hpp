@@ -5,7 +5,7 @@
 #include "Location.hpp"
 
 
-class Server {
+class ServerConfig {
 
 	private:
 		std::vector<int> _listen;

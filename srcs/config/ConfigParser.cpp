@@ -54,9 +54,9 @@ std::vector<std::string> ConfigParser::tokenize(std::string content){
 	return tokens;
 }
 
-Server ConfigParser::parseServerBlock(std::vector<std::string>::iterator& it)
+ServerConfig ConfigParser::parseServerBlock(std::vector<std::string>::iterator& it)
 {
-	Server server;
+	ServerConfig server;
 	it++;it++;
 	while (*it != "}")
 	{
@@ -132,7 +132,7 @@ Config ConfigParser::parse(const std::string& filepath)
 	{
 		if (*it == "server")
 		{
-			Server server = parseServerBlock(it);
+			ServerConfig server = parseServerBlock(it);
 			config.addServer(server);
 		}
 		else
