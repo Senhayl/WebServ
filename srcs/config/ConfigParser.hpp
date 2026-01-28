@@ -10,11 +10,8 @@
 class ConfigParser
 {
 	private:
-		std::string _filepath;
 		std::string _content;
-		std::vector<std::string> _errors;
 	public:
-		const std::vector<std::string>& getErrors() const;
 		std::string readFile(const std::string& filepath);
 		std::vector<std::string> tokenize(std::string content);
 		Config parse(const std::string& filepath);

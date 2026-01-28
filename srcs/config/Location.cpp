@@ -3,6 +3,7 @@
 Location::Location(){
 	_clientMaxBodySize = 0;
 	_autoindex = false;
+	_autoindexState = AUTO_NOT_SET;
 }
 
 Location::~Location(){}
@@ -50,6 +51,17 @@ void Location::setClientMaxBodySize(size_t size) {
 
 void Location::setAutoindex(bool autoindex) {
 	_autoindex = autoindex;
+	_autoindexState = AUTO_OK;
+}
+
+void Location::setAutoindexMissingValue() {
+	_autoindex = false;
+	_autoindexState = AUTO_MISSING_VALUE;
+}
+
+void Location::setAutoindexInvalidValue() {
+	_autoindex = false;
+	_autoindexState = AUTO_INVALID_VALUE;
 }
 
 // Getters
@@ -99,6 +111,11 @@ bool Location::isDataValid() const {
 }
 
 bool Location::isDataValid(std::vector<std::string>& errs) const{
+	if (_autoindexState == AUTO_MISSING_VALUE)
+		errs.push_back("location: autoindex is missing a value (expected 'on' or 'off')");
+	else if (_autoindexState == AUTO_INVALID_VALUE)
+		errs.push_back("location: autoindex has an invalid value (expected 'on' or 'off')");
+
 	if (_path.empty())
 		errs.push_back("location: path is empty");
 	else if (_path[0] != '/')
