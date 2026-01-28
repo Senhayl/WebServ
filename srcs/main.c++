@@ -16,7 +16,7 @@ int main(int ac, char **av)
         Config config = parser.parse(av[1]);
         std::vector<std::string> errs;
 		
-        const std::vector<Server>& servers = config.getServers();
+        const std::vector<ServerConfig>& servers = config.getServers();
         for (size_t i = 0; i < servers.size(); ++i)
             servers[i].isDataValid(errs);
 

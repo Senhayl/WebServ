@@ -152,8 +152,8 @@ Location ConfigParser::parseLocationBlock(std::vector<std::string>::iterator& it
 }
 
 //Fullfill Serverdata from tokens content
-Server ConfigParser::parseServerBlock(std::vector<std::string>::iterator& it){
-	Server server;
+ServerConfig ConfigParser::parseServerBlock(std::vector<std::string>::iterator& it){
+	ServerConfig server;
 	std::map<int, std::string> errorPages;
 	it++;
 	it++;
@@ -256,7 +256,7 @@ Config ConfigParser::parse(const std::string& filepath)
 	{
 		if (*it == "server")
 		{
-			Server server = parseServerBlock(it);
+			ServerConfig server = parseServerBlock(it);
 			config.addServer(server);
 		}
 		else

@@ -1,14 +1,14 @@
 #include "Config.hpp"
 
-void Config::addServer(const Server& server){
+void Config::addServer(const ServerConfig& server){
 	_servers.push_back(server);
 }
 
-const std::vector<Server>& Config::getServers() const{
+const std::vector<ServerConfig>& Config::getServers() const{
 	return _servers;
 }
 
-const Server& Config::getServer(size_t index) const{
+const ServerConfig& Config::getServer(size_t index) const{
 	return _servers[index];
 }
 
