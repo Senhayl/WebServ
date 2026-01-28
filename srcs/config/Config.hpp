@@ -7,12 +7,12 @@
 class Config 
 {
 	private:
-		std::vector<Server> _servers;
+		std::vector<ServerConfig> _servers;
 
 	public:
-		void addServer(const Server& server);
+		void addServer(const ServerConfig& server);
 
-		const std::vector<Server>& getServers() const;
-		const Server& getServer(size_t index) const;
+		const std::vector<ServerConfig>& getServers() const;
+		const ServerConfig& getServer(size_t index) const;
 		size_t getServerCount() const;
 } ;

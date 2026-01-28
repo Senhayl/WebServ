@@ -15,6 +15,6 @@ class ConfigParser
 		std::string readFile(const std::string& filepath);
 		std::vector<std::string> tokenize(std::string content);
 		Config parse(const std::string& filepath);
-		Server parseServerBlock(std::vector<std::string>::iterator& it);
+		ServerConfig parseServerBlock(std::vector<std::string>::iterator& it);
 		Location parseLocationBlock(std::vector<std::string>::iterator& it);
 };
