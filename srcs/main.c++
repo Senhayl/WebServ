@@ -14,8 +14,7 @@ int main(int ac, char **av)
     {
         ConfigParser parser;
         Config config = parser.parse(av[1]);
-
-        std::vector<std::string> errs(parser.getErrors().begin(), parser.getErrors().end());
+        std::vector<std::string> errs;
 		
         const std::vector<Server>& servers = config.getServers();
         for (size_t i = 0; i < servers.size(); ++i)

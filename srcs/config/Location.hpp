@@ -7,6 +7,14 @@
 class Location
 {
 	private:
+		enum AutoindexParseState
+		{
+			AUTO_NOT_SET,
+			AUTO_OK,
+			AUTO_MISSING_VALUE,
+			AUTO_INVALID_VALUE
+		};
+
 		std::vector<std::string> _allowedMethods;
 		std::string _path;
 		std::string _root;
@@ -17,6 +25,7 @@ class Location
 		std::string _cgiPath;
 		size_t _clientMaxBodySize;
 		bool _autoindex;
+		AutoindexParseState _autoindexState;
 
 	public:
 		Location();
@@ -34,6 +43,8 @@ class Location
 		void setCgiPath(const std::string& cgiPath);
 		void setClientMaxBodySize(size_t size);
 		void setAutoindex(bool autoindex);
+		void setAutoindexMissingValue();
+		void setAutoindexInvalidValue();
 
 		// Getters
 		const std::vector<std::string>& getAllowedMethods() const;

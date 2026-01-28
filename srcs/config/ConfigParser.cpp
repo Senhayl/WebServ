@@ -1,11 +1,16 @@
 #include "ConfigParser.hpp"
 #include <sstream>
+#include <cctype>
 
-
-
-
-const std::vector<std::string>& ConfigParser::getErrors() const {
-	return _errors;
+static bool isAllDigits(const std::string& s)
+{
+    if (s.empty()) return false;
+    for (size_t i = 0; i < s.size(); ++i)
+    {
+        if (!std::isdigit(static_cast<unsigned char>(s[i])))
+            return false;
+    }
+    return true;
 }
 
 //Readfile from filepath and copy it into a string
@@ -30,9 +35,10 @@ std::vector<std::string> ConfigParser::tokenize(std::string content){
 	{
 		if(content[i] == '#')
 		{
-			while (content[i] != '\n' && i < content.length())
+			while (i < content.length() && content[i] != '\n')
 				i++;
-		i++;
+			if (i < content.length())
+				i++;
 		continue;
 		}
 		if (content[i] == ' ' || content[i] == '\n' || content[i] == '\t')
@@ -59,6 +65,8 @@ std::vector<std::string> ConfigParser::tokenize(std::string content){
 		currentToken += content[i];
 		i++;
 	}
+	if (!currentToken.empty())
+		tokens.push_back(currentToken);
 	return tokens;
 }
 
@@ -125,8 +133,7 @@ Location ConfigParser::parseLocationBlock(std::vector<std::string>::iterator& it
             ++it;
             if (*it == ";" || *it == "}")
             {
-				_errors.push_back(std::string("location '") + location.getPath() + "': autoindex missing value (expected 'on' or 'off')");
-                location.setAutoindex(false);
+				location.setAutoindexMissingValue();
             }
             else if (*it == "on" || *it == "off")
             {
@@ -135,8 +142,7 @@ Location ConfigParser::parseLocationBlock(std::vector<std::string>::iterator& it
             }
             else
             {
-				_errors.push_back(std::string("location '") + location.getPath() + "': autoindex invalid value '" + *it + "' (expected 'on' or 'off')");
-                location.setAutoindex(false);
+				location.setAutoindexInvalidValue();
                 ++it;
             }
 		}
@@ -148,6 +154,7 @@ Location ConfigParser::parseLocationBlock(std::vector<std::string>::iterator& it
 //Fullfill Serverdata from tokens content
 Server ConfigParser::parseServerBlock(std::vector<std::string>::iterator& it){
 	Server server;
+	std::map<int, std::string> errorPages;
 	it++;
 	it++;
 	while (*it != "}")
@@ -197,16 +204,32 @@ Server ConfigParser::parseServerBlock(std::vector<std::string>::iterator& it){
 			it++;
 		}
 		else if (*it == "error_page")
-		{
-			it++;
-			int error_number = std::atoi(it->c_str());
-			it++;
-			std::string error_html = *it;
-			std::map<int, std::string> error_page;
-			error_page.insert(std::make_pair(error_number, error_html));
-			server.setErrorPage(error_page);
-			it++;
-		}
+        {
+            ++it;
+            std::vector<std::string> args;
+            while (*it != ";" && *it != "}")
+            {
+                args.push_back(*it);
+                ++it;
+            }
+			// Pure data fill: accept only well-formed directives.
+			// If missing ';' (hit '}'), just stop parsing this directive.
+			if (*it != "}" && args.size() >= 2)
+			{
+				const std::string& path = args.back();
+				if (!path.empty() && path[0] == '/')
+				{
+					for (size_t i = 0; i + 1 < args.size(); ++i)
+					{
+						const std::string& codeTok = args[i];
+						if (!isAllDigits(codeTok))
+							continue;
+						int code = std::atoi(codeTok.c_str());
+						errorPages[code] = path;
+					}
+				}
+			}
+        }
 		else if (*it == "location")
 		{
 			it++;
@@ -215,6 +238,8 @@ Server ConfigParser::parseServerBlock(std::vector<std::string>::iterator& it){
 		}
 		it++;
 	}
+	if (!errorPages.empty())
+		server.setErrorPage(errorPages);
 	return server;
 }
 
@@ -222,9 +247,9 @@ Server ConfigParser::parseServerBlock(std::vector<std::string>::iterator& it){
 Config ConfigParser::parse(const std::string& filepath)
 {
 	Config config;
-	std::string content = this->readFile(filepath);
+	_content = this->readFile(filepath);
 	
-	std::vector<std::string> tokens = tokenize(content);
+	std::vector<std::string> tokens = tokenize(_content);
 
 	std::vector<std::string>::iterator it = tokens.begin();
 	while (it != tokens.end())

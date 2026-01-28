@@ -154,7 +154,6 @@ bool Server::isDataValid(std::vector<std::string>& errs) const
         {
             const Location& loc = _locations[i];
 
-            // duplicate location paths
             const std::string& p = loc.getPath();
             if (!p.empty() && !seenPaths.insert(p).second)
             {
