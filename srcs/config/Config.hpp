@@ -2,7 +2,7 @@
 
 #include <vector>
 #include "Location.hpp"
-#include "Server.hpp"
+#include "ServerConfig.hpp"
 
 class Config 
 {
