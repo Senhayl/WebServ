@@ -10,7 +10,8 @@ SRCS = mainRequest.cpp \
        HttpRequest.cpp \
        RequestParser.cpp \
        RequestValidator.cpp \
-       ../Response/HttpResponse.cpp
+       ../Response/HttpResponse.cpp \
+	   ../Response/MethodHandler.cpp
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)

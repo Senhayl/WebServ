@@ -18,9 +18,13 @@ bool RequestValidator::isValidMethod(const std::string& method) {
 }
 
 bool RequestValidator::isValidPath(const std::string& path) {
-	if (path.empty() || path[0] != '/' || path.find(' ') != std::string::npos) {
+	std::string _path = "../Pages/";
+	_path += path;
+	std::ifstream file(_path.c_str());
+	if (path.empty() || path[0] != '/' || path.find(' ') != std::string::npos || !file.is_open()) {
 		return false;
 	}
+	file.close();
 	return true;
 }
 
