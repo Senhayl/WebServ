@@ -45,7 +45,7 @@ HttpResponse MethodHandler::handlerPOST(const HttpRequest& req) {
 		return HttpResponse::createError(400);
 	}
 
-	std::string path = "../Pages/";
+	std::string path = "../Pages";
 	path += req.getPath();
 	
 	std::ofstream file(path.c_str(), std::ios::binary);
@@ -57,6 +57,8 @@ HttpResponse MethodHandler::handlerPOST(const HttpRequest& req) {
 	
 	HttpResponse resp(201);
     resp.setStatusMessage(201);
+    resp.setBody("Resource created successfully");
+    resp.addHeader("Content-Type", "text/plain");
     resp.addHeader("Location", req.getPath());
 	return resp;
 }
