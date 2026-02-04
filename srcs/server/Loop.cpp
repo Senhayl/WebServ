@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Loop.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shessoun <shessoun@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:06:58 by aaiache           #+#    #+#             */
-/*   Updated: 2026/02/04 16:41:57 by shessoun         ###   ########.fr       */
+/*   Updated: 2026/02/04 19:23:49 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include "../http/httpHeader.hpp"
 #include <fcntl.h>
+#include <sys/socket.h>
 
 Loop::Loop(Server& server) : _server(server)
 {
@@ -50,8 +51,13 @@ void Loop::handleClientRead(size_t index)
 
     _clients[fd]->getBuffer().append(buffer, bytes);
 
-    //HTTP parsing
-	std::string response = getAnswer(_clients[fd]->getBuffer());
+    if (_clients[fd]->getBuffer().find("\r\n\r\n") != std::string::npos)
+    {
+        std::string response = getAnswer(_clients[fd]->getBuffer());
+        _clients[fd]->setResponse(response);
+        _clients[fd]->getBuffer().clear();
+        _fds[index].events = POLLOUT;
+    }
 }
 
 void Loop::removeClient(size_t index)
@@ -65,7 +71,27 @@ void Loop::removeClient(size_t index)
     _fds.erase(_fds.begin() + index);
 }
 
-
+void Loop::handleClientWrite(size_t index)
+{
+    int fd = _fds[index].fd;
+    const std::string& response = _clients[fd]->getResponse();
+    
+    ssize_t sent = send(fd, response.c_str(), response.length(), 0);
+    if (sent <= 0)
+    {
+        removeClient(index);
+        return;
+    }
+    if (response.find("Connection: close") != std::string::npos)
+    {
+        removeClient(index);
+    }
+    else
+    {
+        _clients[fd]->clearResponse();
+        _fds[index].events = POLLIN;
+    }
+}
 
 void Loop::run()
 {
@@ -83,6 +109,33 @@ void Loop::run()
                 else
                     handleClientRead(i);
             }
+        }
+    }
+}
+
+void Loop::run()
+{
+    while (true)
+    {
+        if (poll(&_fds[0], _fds.size(), -1) < 0)
+            continue;
+        for (size_t i = 0; i < _fds.size(); i++)
+        {
+            if (_fds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
+            {
+                if (_fds[i].fd != _server.getFd())
+                    removeClient(i--);
+                continue;
+            }
+            if (_fds[i].revents & POLLIN)
+            {
+                if (_fds[i].fd == _server.getFd())
+                    acceptClient();
+                else
+                    handleClientRead(i);
+            }
+            else if (_fds[i].revents & POLLOUT)
+                handleClientWrite(i);
         }
     }
 }
