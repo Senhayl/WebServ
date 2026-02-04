@@ -6,7 +6,7 @@
 /*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:05:09 by aaiache           #+#    #+#             */
-/*   Updated: 2026/01/22 18:06:11 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/02/04 19:16:22 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,21 @@ Client::~Client()
 int Client::getFd() const
 {
     return _fd;
+}
+
+void Client::setResponse(const std::string& response)
+{
+    _response = response;
+}
+
+const std::string& Client::getResponse() const
+{
+    return _response;
+}
+
+void Client::clearResponse()
+{
+    _response.clear();
 }
 
 std::string& Client::getBuffer()

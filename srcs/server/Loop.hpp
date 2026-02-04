@@ -6,7 +6,7 @@
 /*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:07:01 by aaiache           #+#    #+#             */
-/*   Updated: 2026/01/22 18:08:52 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/02/04 19:21:24 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class Loop
 	
 		void acceptClient();
 		void handleClientRead(size_t index);
+		void handleClientWrite(size_t index);
 		void removeClient(size_t index);
 
 	public:
