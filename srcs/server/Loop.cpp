@@ -6,7 +6,7 @@
 /*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:06:58 by aaiache           #+#    #+#             */
-/*   Updated: 2026/02/04 19:23:49 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/02/04 19:30:42 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,26 +90,6 @@ void Loop::handleClientWrite(size_t index)
     {
         _clients[fd]->clearResponse();
         _fds[index].events = POLLIN;
-    }
-}
-
-void Loop::run()
-{
-    while (true)
-    {
-        if (poll(&_fds[0], _fds.size(), -1) < 0)
-            continue;
-
-        for (size_t i = 0; i < _fds.size(); i++)
-        {
-            if (_fds[i].revents & POLLIN)
-            {
-                if (_fds[i].fd == _server.getFd())
-                    acceptClient();
-                else
-                    handleClientRead(i);
-            }
-        }
     }
 }
 

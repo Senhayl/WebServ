@@ -6,7 +6,7 @@
 /*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 17:53:51 by aaiache           #+#    #+#             */
-/*   Updated: 2026/01/22 18:04:47 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/02/04 19:32:55 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void Server::setUpSocket()
 		htons -> hexa to network small */
     std::memset(&_addr, 0, sizeof(_addr));
     _addr.sin_family = AF_INET;
-    _addr.sin_port = htons(8080);
+    _addr.sin_port = htons(_port);
     _addr.sin_addr.s_addr = INADDR_ANY;
 
 	//[3]Bind le fd avec l'adresse: BIND(socket, adresse IPV4 castee, taille de la structure).
@@ -63,5 +63,5 @@ void Server::setUpSocket()
 	_server_poll.fd = _fd; //s-e
 	_server_poll.events = POLLIN;// donnees en attente de lecture
 	_fds.push_back(_server_poll);
-	std::cout << "Server listening on port " << "8080\n";
+	std::cout << "Server listening on port " << _port << "\n";
 }

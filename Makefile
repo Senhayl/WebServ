@@ -6,7 +6,7 @@
 #    By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/21 15:57:46 by aaiache           #+#    #+#              #
-#    Updated: 2026/01/28 17:58:28 by aaiache          ###   ########.fr        #
+#    Updated: 2026/02/04 19:33:45 by aaiache          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,20 +24,30 @@ OBJS_DIR    = objs
 
 SRCS        = srcs/main.c++ \
               srcs/config/ConfigParser.cpp \
-              srcs/config/Server.cpp \
+              srcs/config/ServerConfig.cpp \
               srcs/config/Location.cpp \
               srcs/config/Config.cpp \
 			  srcs/server/Client.cpp \
 			  srcs/server/Loop.cpp \
-			  srcs/server/Server.cpp
+			  srcs/server/Server.cpp \
+			  srcs/http/Request/HttpRequest.cpp \
+			  srcs/http/Request/RequestParser.cpp \
+			  srcs/http/Request/RequestValidator.cpp \
+			  srcs/http/Response/HttpResponse.cpp \
+			  srcs/http/Response/MethodHandler.cpp
 
 HEADERS		= srcs/config/ConfigParser.hpp \
-              srcs/config/Server.hpp \
+              srcs/config/ServerConfig.hpp \
               srcs/config/Location.hpp \
               srcs/config/Config.hpp \
 			  srcs/server/Client.hpp \
 			  srcs/server/Loop.hpp \
-			  srcs/server/Server.hpp
+			  srcs/server/Server.hpp \
+			  srcs/http/Request/HttpRequest.hpp \
+			  srcs/http/Request/RequestParser.hpp \
+			  srcs/http/Request/RequestValidator.hpp \
+			  srcs/http/Response/HttpResponse.hpp \
+			  srcs/http/Response/MethodHandler.hpp
 
 OBJS        = $(patsubst $(SRCS_DIR)/%.c++,$(OBJS_DIR)/%.o,$(filter %.c++,$(SRCS))) \
               $(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(filter %.cpp,$(SRCS)))
