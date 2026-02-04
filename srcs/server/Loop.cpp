@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Loop.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
+/*   By: shessoun <shessoun@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:06:58 by aaiache           #+#    #+#             */
-/*   Updated: 2026/01/22 18:10:29 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/02/04 16:41:57 by shessoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Loop.hpp"
 #include <unistd.h>
+#include "../http/httpHeader.hpp"
 #include <fcntl.h>
 
 Loop::Loop(Server& server) : _server(server)
@@ -50,6 +51,7 @@ void Loop::handleClientRead(size_t index)
     _clients[fd]->getBuffer().append(buffer, bytes);
 
     //HTTP parsing
+	std::string response = getAnswer(_clients[fd]->getBuffer());
 }
 
 void Loop::removeClient(size_t index)
