@@ -1,0 +1,6 @@
+GET (method) /(path)HTTP1.1(version protocole)
+Host:***
+Accept-language: fr
+^- (headers)
+empty line
+body
