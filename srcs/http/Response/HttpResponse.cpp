@@ -71,7 +71,7 @@ void HttpResponse::print() const {
 
 std::string HttpResponse::loadError(int code) {
 	std::ostringstream path;
-	path << "../ErrorPages/" << code << ".html";
+	path << "./srcs/http/ErrorPages/" << code << ".html";
 	std::ifstream file(path.str().c_str());
 	if (file.is_open()) {
 		std::ostringstream content;
