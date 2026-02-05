@@ -19,14 +19,18 @@ std::string getContentType(const std::string& path) {
     if (ext == "svg") return "image/svg+xml";
     if (ext == "pdf") return "application/pdf";
     if (ext == "zip") return "application/zip";
-    
+	
     return "application/octet-stream";
 }
 
 
 HttpResponse MethodHandler::handlerGET(const HttpRequest& req) {
-	std::string path = "../Pages/";
-	path += req.getPath();
+	std::string reqPath = req.getPath();
+	if (reqPath == "/")
+		reqPath = "/index.html";
+
+	std::string path = "./srcs/http/Pages";
+	path += reqPath;
 	std::ifstream file(path.c_str());
 	if (!file.is_open())
 		return HttpResponse::createError(404);
@@ -36,7 +40,7 @@ HttpResponse MethodHandler::handlerGET(const HttpRequest& req) {
 	file.close();
 
 	std::string body = content.str();
-	std::string contentType = getContentType(req.getPath());
+	std::string contentType = getContentType(reqPath);
 	return HttpResponse::createResponse(200, body, contentType);
 }
 
@@ -45,7 +49,7 @@ HttpResponse MethodHandler::handlerPOST(const HttpRequest& req) {
 		return HttpResponse::createError(400);
 	}
 
-	std::string path = "../Pages/";
+	std::string path = "./srcs/http/Pages";
 	path += req.getPath();
 	
 	std::ofstream file(path.c_str(), std::ios::binary);
@@ -62,7 +66,7 @@ HttpResponse MethodHandler::handlerPOST(const HttpRequest& req) {
 }
 
 HttpResponse MethodHandler::handlerDELETE(const HttpRequest& req) {
-	std::string path = "../Pages/";
+	std::string path = "./srcs/http/Pages";
 	path += req.getPath();
 
 	std::ifstream file(path.c_str());

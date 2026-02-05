@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c++                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mlouron <mlouron@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 19:37:46 by aaiache           #+#    #+#             */
-/*   Updated: 2026/02/04 19:37:47 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/02/05 16:07:44 by mlouron          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ int main(int ac, char **av)
         }
         
         int port = servers[0].getListen()[0];
-        std::cout << "Server listening on port " << port << std::endl;
         
         Server server(port);
         Loop loop(server);

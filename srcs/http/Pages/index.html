@@ -1,11 +1,241 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Premiere Page</title>
+	<title>Webserv — Accueil</title>
+	<style>
+		:root {
+			--bg: #0b1220;
+			--panel: rgba(255, 255, 255, 0.06);
+			--panel-2: rgba(255, 255, 255, 0.09);
+			--text: #e7eefc;
+			--muted: rgba(231, 238, 252, 0.75);
+			--brand: #7c3aed;
+			--brand-2: #06b6d4;
+			--ok: #22c55e;
+			--warn: #f59e0b;
+			--bad: #ef4444;
+			--shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+			--radius: 18px;
+		}
+
+		* { box-sizing: border-box; }
+		html, body { height: 100%; }
+		body {
+			margin: 0;
+			font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Noto Sans", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+			color: var(--text);
+			background:
+				radial-gradient(1200px 600px at 10% 10%, rgba(124, 58, 237, 0.35), transparent 60%),
+				radial-gradient(900px 500px at 90% 20%, rgba(6, 182, 212, 0.22), transparent 60%),
+				linear-gradient(180deg, #060913, var(--bg));
+		}
+
+		a { color: inherit; text-decoration: none; }
+		.container {
+			max-width: 980px;
+			margin: 0 auto;
+			padding: 40px 20px 60px;
+		}
+		.hero {
+			border: 1px solid rgba(255, 255, 255, 0.10);
+			background: linear-gradient(180deg, var(--panel), transparent);
+			border-radius: var(--radius);
+			box-shadow: var(--shadow);
+			padding: 28px;
+		}
+		.badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 10px;
+			padding: 8px 12px;
+			border-radius: 999px;
+			background: rgba(255, 255, 255, 0.07);
+			border: 1px solid rgba(255, 255, 255, 0.10);
+			color: var(--muted);
+			font-size: 13px;
+		}
+		.dot {
+			width: 10px;
+			height: 10px;
+			border-radius: 999px;
+			background: var(--ok);
+			box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.12);
+		}
+		h1 {
+			margin: 16px 0 8px;
+			font-size: 38px;
+			letter-spacing: -0.02em;
+			line-height: 1.1;
+		}
+		.subtitle {
+			margin: 0;
+			color: var(--muted);
+			font-size: 16px;
+			line-height: 1.6;
+		}
+		.grid {
+			display: grid;
+			grid-template-columns: repeat(12, 1fr);
+			gap: 16px;
+			margin-top: 18px;
+		}
+		.card {
+			grid-column: span 12;
+			border-radius: var(--radius);
+			border: 1px solid rgba(255, 255, 255, 0.10);
+			background: rgba(255, 255, 255, 0.05);
+			padding: 18px;
+		}
+		@media (min-width: 820px) {
+			.card.half { grid-column: span 6; }
+			.card.third { grid-column: span 4; }
+		}
+		.card h2 {
+			margin: 0 0 10px;
+			font-size: 16px;
+			letter-spacing: 0.01em;
+		}
+		.kv {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			margin: 10px 0 0;
+			padding: 0;
+			list-style: none;
+			color: var(--muted);
+			font-size: 14px;
+		}
+		.kv li {
+			padding: 8px 10px;
+			border-radius: 12px;
+			border: 1px solid rgba(255, 255, 255, 0.10);
+			background: rgba(0, 0, 0, 0.12);
+		}
+		code, pre {
+			font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+		}
+		pre {
+			margin: 0;
+			padding: 14px;
+			border-radius: 14px;
+			border: 1px solid rgba(255, 255, 255, 0.10);
+			background: rgba(0, 0, 0, 0.20);
+			overflow: auto;
+			color: rgba(231, 238, 252, 0.92);
+			line-height: 1.55;
+			font-size: 13px;
+		}
+		.pills {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+			margin-top: 12px;
+		}
+		.pill {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 10px 12px;
+			border-radius: 999px;
+			border: 1px solid rgba(255, 255, 255, 0.12);
+			background: linear-gradient(90deg, rgba(124, 58, 237, 0.18), rgba(6, 182, 212, 0.12));
+			color: rgba(231, 238, 252, 0.92);
+			font-size: 14px;
+		}
+		.pill .icon {
+			width: 10px;
+			height: 10px;
+			border-radius: 999px;
+			background: linear-gradient(90deg, var(--brand), var(--brand-2));
+		}
+		.footer {
+			margin-top: 18px;
+			color: var(--muted);
+			font-size: 13px;
+			text-align: center;
+		}
+		.hr {
+			height: 1px;
+			background: rgba(255, 255, 255, 0.10);
+			margin: 16px 0;
+		}
+		.small {
+			color: var(--muted);
+			font-size: 13px;
+			line-height: 1.6;
+		}
+	</style>
 </head>
 <body>
-	
+	<div class="container">
+		<section class="hero">
+			<div class="badge"><span class="dot"></span> Webserv en cours d’exécution</div>
+			<h1>Bienvenue sur Webserv</h1>
+			<p class="subtitle">
+				Serveur HTTP/1.1 (projet 42) — sockets, non-bloquant, multiplexage, parsing de requêtes et réponses.
+				Cette page est servie depuis <code>srcs/http/Pages/index.html</code>.
+			</p>
+
+			<div class="pills" aria-label="raccourcis">
+				<a class="pill" href="/" title="Accueil"><span class="icon"></span><span>GET /</span></a>
+				<a class="pill" href="/index.html" title="Fichier index"><span class="icon"></span><span>GET /index.html</span></a>
+				<a class="pill" href="/sami.htm"><span class="icon"></span><span>the goat</span></a>
+			</div>
+			<div class="grid">
+				<div class="card half">
+					<h2>Commandes rapides</h2>
+					<pre>curl -i http://localhost:8080/
+curl -i http://localhost:8080/index.html</pre>
+					<div class="hr"></div>
+					<p class="small">
+						Pour tester les méthodes supportées : GET, POST, DELETE.
+						Le chemin côté serveur pointe actuellement sur le dossier <code>srcs/http/Pages</code>.
+					</p>
+				</div>
+				<div class="card half">
+					<h2>POST /upload (exemple)</h2>
+					<pre>curl -i -X POST http://localhost:8080/upload \
+  -H 'Content-Type: text/plain' \
+  --data 'hello webserv'</pre>
+					<div class="hr"></div>
+					<h2>DELETE (exemple)</h2>
+					<pre># Supprime un fichier dans Pages si présent
+curl -i -X DELETE http://localhost:8080/monfichier.txt</pre>
+				</div>
+
+				<div class="card third">
+					<h2>Fonctionnalités</h2>
+					<ul class="kv">
+						<li>HTTP/1.1</li>
+						<li>poll()</li>
+						<li>Non-bloquant</li>
+						<li>GET / POST / DELETE</li>
+						<li>Pages d’erreur</li>
+					</ul>
+				</div>
+				<div class="card third">
+					<h2>Endpoints utiles</h2>
+					<ul class="kv">
+						<li><code>/</code> → <code>/index.html</code></li>
+						<li><code>/index.html</code></li>
+						<li><code>/upload</code></li>
+					</ul>
+					<p class="small">Si tu obtiens 404, vérifie que le fichier existe dans <code>srcs/http/Pages</code>.</p>
+				</div>
+				<div class="card third">
+					<h2>Build & run</h2>
+					<pre>make
+./webserv srcs/config/default.conf</pre>
+					<p class="small">Port par défaut: <code>8080</code>.</p>
+				</div>
+			</div>
+		</section>
+
+		<p class="footer">
+			Webserv • projet 42 • C++98
+		</p>
+	</div>
 </body>
 </html>

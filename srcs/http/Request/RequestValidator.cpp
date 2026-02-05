@@ -18,12 +18,19 @@ bool RequestValidator::isValidMethod(const std::string& method) {
 }
 
 bool RequestValidator::isValidPath(const std::string& path) {
-	std::string _path = "../Pages/";
-	_path += path;
-	std::ifstream file(_path.c_str());
-	if (path.empty() || path[0] != '/' || path.find(' ') != std::string::npos || !file.is_open()) {
+	if (path.empty() || path[0] != '/' || path.find(' ') != std::string::npos)
 		return false;
-	}
+
+	std::string effective = path;
+	if (effective == "/")
+		effective = "/index.html";
+
+	std::string fullPath = "./srcs/http/Pages";
+	fullPath += effective;
+
+	std::ifstream file(fullPath.c_str());
+	if (!file.is_open())
+		return false;
 	file.close();
 	return true;
 }
