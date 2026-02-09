@@ -89,6 +89,7 @@ HttpResponse HttpResponse::createError(int code) {
 	resp.addHeader("Date", resp.getCurrDate());
 	resp.addHeader("Server", "Webserv");
 	resp.addHeader("Content-Type", "text/html");
+	resp.addHeader("Connection", "close");
 	return resp;
 }
 

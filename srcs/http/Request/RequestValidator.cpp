@@ -17,9 +17,12 @@ bool RequestValidator::isValidMethod(const std::string& method) {
 	return false;
 }
 
-bool RequestValidator::isValidPath(const std::string& path) {
+bool RequestValidator::isValidPath(const std::string& path, const std::string& method) {
 	if (path.empty() || path[0] != '/' || path.find(' ') != std::string::npos)
 		return false;
+
+	if (method == "POST")
+		return true;
 
 	std::string effective = path;
 	if (effective == "/")
@@ -58,7 +61,7 @@ bool RequestValidator::validate(HttpRequest& request) {
 		request.setValid(false);
 		return false;
 	}
-	if (!isValidPath(request.getPath())) {
+	if (!isValidPath(request.getPath(), request.getMethod())) {
 		std::cerr << "Invalid path: " << request.getPath() << " (error 404)" << std::endl;
 		request.setStatusCode(HTTP_NOT_FOUND);
 		request.setValid(false);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Loop.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
+/*   By: shessoun <shessoun@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:06:58 by aaiache           #+#    #+#             */
-/*   Updated: 2026/02/04 19:30:42 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/02/09 16:32:03 by shessoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,12 +51,33 @@ void Loop::handleClientRead(size_t index)
 
     _clients[fd]->getBuffer().append(buffer, bytes);
 
-    if (_clients[fd]->getBuffer().find("\r\n\r\n") != std::string::npos)
+    std::string& buff = _clients[fd]->getBuffer();
+    size_t headerEnd = buff.find("\r\n\r\n");
+    
+    if (headerEnd != std::string::npos)
     {
-        std::string response = getAnswer(_clients[fd]->getBuffer());
-        _clients[fd]->setResponse(response);
-        _clients[fd]->getBuffer().clear();
-        _fds[index].events = POLLOUT;
+        // Headers are complete, check if we have the full body
+        size_t contentLength = 0;
+        size_t clPos = buff.find("Content-Length: ");
+        if (clPos != std::string::npos && clPos < headerEnd)
+        {
+            size_t clStart = clPos + 16; // Length of "Content-Length: "
+            size_t clEnd = buff.find("\r\n", clStart);
+            std::string clValue = buff.substr(clStart, clEnd - clStart);
+            contentLength = atoi(clValue.c_str());
+        }
+        
+        size_t bodyStart = headerEnd + 4; // After "\r\n\r\n"
+        size_t currentBodySize = buff.size() - bodyStart;
+        
+        // Only process if we have the complete body
+        if (currentBodySize >= contentLength)
+        {
+            std::string response = getAnswer(buff);
+            _clients[fd]->setResponse(response);
+            _clients[fd]->getBuffer().clear();
+            _fds[index].events = POLLOUT;
+        }
     }
 }
 

@@ -9,7 +9,6 @@
 std::string getAnswer(std::string rawRequest) {
 	RequestParser parser;
 	HttpRequest request = parser.parse(rawRequest);
-	request.print();
 	
 	RequestValidator validator;
 	bool isValid = validator.validate(request);
@@ -27,5 +26,6 @@ std::string getAnswer(std::string rawRequest) {
 			response = MethodHandler::handlerDELETE(request);
 	}
 	
+	response.print();
 	return response.toString();
 }

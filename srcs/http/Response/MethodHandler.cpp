@@ -57,10 +57,10 @@ HttpResponse MethodHandler::handlerPOST(const HttpRequest& req) {
 		return HttpResponse::createError(400);
 	}
 
-	std::string path = "./srcs/http/Upload";
+	std::string path = "./srcs/http/Pages/upload";
 	path += req.getPath();
 	
-	std::ofstream file(path.c_str(), std::ios::binary);
+	std::ofstream file(path.c_str(), std::ios::out);
 	if (!file.is_open()) {
 		return HttpResponse::createError(500);
 	}
@@ -70,6 +70,7 @@ HttpResponse MethodHandler::handlerPOST(const HttpRequest& req) {
 	HttpResponse resp(201);
 	resp.setStatusMessage(201);
 	resp.addHeader("Location", req.getPath());
+	resp.addHeader("Connection", "close");
 	return resp;
 }
 

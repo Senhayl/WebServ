@@ -16,7 +16,7 @@ public:
 
 private:
 	bool isValidMethod(const std::string& method);
-	bool isValidPath(const std::string& path);
+	bool isValidPath(const std::string& path, const std::string& method);
 	bool isValidVersion(const std::string& version);
 	bool isValidHost(const std::string& host);
 	
