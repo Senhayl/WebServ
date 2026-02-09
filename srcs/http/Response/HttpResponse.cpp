@@ -33,7 +33,7 @@ std::string HttpResponse::toString() {
 	 if (_headers.find("Date") == _headers.end())
         addHeader("Date", getCurrDate());
     if (_headers.find("Server") == _headers.end())
-        addHeader("Server", "ninho");
+        addHeader("Server", "Webserv");
     if (_headers.find("Connection") == _headers.end())
 	{
 		if (_statusCode == 400)
@@ -87,7 +87,7 @@ HttpResponse HttpResponse::createError(int code) {
 	resp.setStatusMessage(code);
 	resp.setBody(resp.loadError(code));
 	resp.addHeader("Date", resp.getCurrDate());
-	resp.addHeader("Server", "ninho");
+	resp.addHeader("Server", "Webserv");
 	resp.addHeader("Content-Type", "text/html");
 	return resp;
 }
@@ -97,7 +97,7 @@ HttpResponse HttpResponse::createResponse(int code, std::string& body, std::stri
 	resp.setStatusMessage(code);
 	resp.setBody(body);
 	resp.addHeader("Date", resp.getCurrDate());
-	resp.addHeader("Server", "ninho");
+	resp.addHeader("Server", "Webserv");
 	resp.addHeader("Connection", "keep-alive");
 	resp.addHeader("Content-Type", contentType);
 	return resp;

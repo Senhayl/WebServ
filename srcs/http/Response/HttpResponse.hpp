@@ -21,6 +21,7 @@ public:
 			case 200: _statusMessage = "OK"; break;
 			case 201: _statusMessage = "Created"; break;
 			case 204: _statusMessage = "No Content"; break;
+			case 301: _statusMessage = "Moved Permanently"; break;
 			case 400: _statusMessage = "Bad Request";break;
 			case 404: _statusMessage = "Not Found"; break;
 			case 405: _statusMessage = "Method Not Allowed"; break;
