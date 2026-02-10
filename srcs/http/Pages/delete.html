@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suppression de fichier - WebServ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #f5576c;
+        }
+
+        .files-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+            margin-bottom: 20px;
+        }
+
+        .files-list h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .file-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 2px solid transparent;
+        }
+
+        .file-item:hover {
+            background: #fff5f7;
+            border-color: #f5576c;
+        }
+
+        .file-item.selected {
+            background: #ffe0e6;
+            border-color: #f5576c;
+        }
+
+        .file-item-name {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .file-item-icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .file-item-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .delete-icon {
+            color: #f5576c;
+            font-size: 20px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .file-item:hover .delete-icon,
+        .file-item.selected .delete-icon {
+            opacity: 1;
+        }
+
+        .no-files {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-refresh {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-bottom: 20px;
+        }
+
+        .btn-refresh:hover:not(:disabled) {
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #f5576c;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .warning-icon {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ Suppression de fichier</h1>
+        
+        <div class="warning-box">
+            <span class="warning-icon">⚠️</span>
+            <div>
+                <strong>Attention:</strong> La suppression est définitive et ne peut pas être annulée.
+            </div>
+        </div>
+
+        <button class="btn btn-refresh" id="refreshBtn" onclick="loadFiles()">
+            🔄 Actualiser la liste
+        </button>
+
+        <div class="files-list" id="filesList">
+            <h3>📂 Fichiers disponibles</h3>
+            <div class="loading">Chargement...</div>
+        </div>
+
+        <div class="input-group">
+            <label for="fileInput">Nom du fichier à supprimer :</label>
+            <input 
+                type="text" 
+                id="fileInput" 
+                placeholder="Entrez le nom du fichier ou sélectionnez-le dans la liste"
+                autocomplete="off"
+            >
+        </div>
+
+        <button class="btn" id="deleteBtn" onclick="deleteFile()">
+            🗑️ Supprimer le fichier
+        </button>
+
+        <div class="message" id="message"></div>
+        
+        <a href="/" class="back-link">← Retour à l'accueil</a>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let filesList = [];
+
+        // Load files on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFiles();
+        });
+
+        // Load available files
+        async function loadFiles() {
+            const filesListDiv = document.getElementById('filesList');
+            const refreshBtn = document.getElementById('refreshBtn');
+            
+            filesListDiv.innerHTML = '<h3>📂 Fichiers disponibles</h3><div class="loading">Chargement...</div>';
+            refreshBtn.disabled = true;
+
+            try {
+                // Try to get list of files from the upload directory
+                const response = await fetch('/upload/', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'text/html, application/json, */*'
+                    }
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+
+                if (response.ok) {
+                    const contentType = response.headers.get('content-type');
+                    console.log('Content-Type:', contentType);
+                    
+                    const text = await response.text();
+                    console.log('Response text (first 500 chars):', text.substring(0, 500));
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        // If server returns JSON with file list
+                        try {
+                            const data = JSON.parse(text);
+                            filesList = data.files || data || [];
+                        } catch (e) {
+                            console.error('JSON parse error:', e);
+                            filesList = [];
+                        }
+                    } else {
+                        // Try to parse HTML directory listing
+                        filesList = parseDirectoryListing(text);
+                    }
+
+                    console.log('Files found:', filesList);
+                    displayFiles(filesList);
+                } else {
+                    console.error('Response not OK:', response.status, response.statusText);
+                    filesListDiv.innerHTML = '<h3>📂 Fichiers disponibles</h3><div class="no-files">Impossible de charger la liste (code ' + response.status + ')<br><small>Vous pouvez toujours entrer le nom manuellement</small></div>';
+                }
+            } catch (error) {
+                console.error('Error loading files:', error);
+                filesListDiv.innerHTML = '<h3>📂 Fichiers disponibles</h3><div class="no-files">Erreur lors du chargement<br><small>Vous pouvez toujours entrer le nom manuellement</small></div>';
+            } finally {
+                refreshBtn.disabled = false;
+            }
+        }
+
+        // Parse HTML directory listing
+        function parseDirectoryListing(html) {
+            const files = [];
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            console.log('Parsing HTML, length:', html.length);
+            
+            // Try to find links in the directory listing
+            const links = doc.querySelectorAll('a');
+            console.log('Found links:', links.length);
+            
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                const text = link.textContent.trim();
+                console.log('Link:', {href, text});
+                
+                if (href && href !== '../' && href !== '..' && !href.endsWith('/')) {
+                    // Extract filename from href
+                    const filename = decodeURIComponent(href.split('/').pop().split('?')[0]);
+                    if (filename && filename !== '..' && filename !== '.' && filename !== '') {
+                        files.push(filename);
+                    }
+                } else if (text && text !== '..' && text !== '.' && text !== 'Parent Directory') {
+                    // Sometimes the filename is in the text content
+                    const cleanText = text.split(/\s{2,}/)[0].trim();
+                    if (cleanText && !cleanText.includes('/') && cleanText !== 'Name') {
+                        files.push(cleanText);
+                    }
+                }
+            });
+
+            // Also try to parse pre-formatted directory listings
+            if (files.length === 0) {
+                const pre = doc.querySelector('pre');
+                if (pre) {
+                    const lines = pre.textContent.split('\n');
+                    console.log('Trying to parse pre content, lines:', lines.length);
+                    lines.forEach(line => {
+                        // Skip parent directory and headers
+                        if (line.includes('..') || line.includes('Parent') || 
+                            line.includes('Name') || line.trim() === '') {
+                            return;
+                        }
+                        // Try to extract filename from various formats
+                        const matches = line.match(/["']([^"']+)["']/) || 
+                                      line.match(/>\s*([^\s<]+)\s*</) ||
+                                      line.match(/^([^\s]+)/);
+                        if (matches && matches[1]) {
+                            const filename = matches[1].trim();
+                            if (filename && !filename.endsWith('/') && filename !== '.') {
+                                files.push(filename);
+                            }
+                        }
+                    });
+                }
+            }
+
+            console.log('Parsed files:', files);
+            return [...new Set(files)]; // Remove duplicates
+        }
+
+        // Display files in the list
+        function displayFiles(files) {
+            const filesListDiv = document.getElementById('filesList');
+            
+            if (files.length === 0) {
+                filesListDiv.innerHTML = '<h3>📂 Fichiers disponibles</h3><div class="no-files">Aucun fichier trouvé</div>';
+                return;
+            }
+
+            let html = '<h3>📂 Fichiers disponibles (' + files.length + ')</h3>';
+            
+            files.forEach(filename => {
+                html += `
+                    <div class="file-item" onclick="selectFile('${escapeHtml(filename)}')">
+                        <div class="file-item-info">
+                            <span class="file-item-icon">📄</span>
+                            <span class="file-item-name">${escapeHtml(filename)}</span>
+                        </div>
+                        <span class="delete-icon">🗑️</span>
+                    </div>
+                `;
+            });
+
+            filesListDiv.innerHTML = html;
+        }
+
+        // Select a file from the list
+        function selectFile(filename) {
+            selectedFile = filename;
+            document.getElementById('fileInput').value = filename;
+            
+            // Update visual selection
+            const items = document.querySelectorAll('.file-item');
+            items.forEach(item => {
+                item.classList.remove('selected');
+                if (item.querySelector('.file-item-name').textContent === filename) {
+                    item.classList.add('selected');
+                }
+            });
+
+            // Hide any previous messages
+            document.getElementById('message').style.display = 'none';
+        }
+
+        // Delete the selected file
+        async function deleteFile() {
+            const fileInput = document.getElementById('fileInput');
+            const deleteBtn = document.getElementById('deleteBtn');
+            const message = document.getElementById('message');
+            
+            const filename = fileInput.value.trim();
+            
+            if (!filename) {
+                showMessage('❌ Veuillez entrer ou sélectionner un nom de fichier', 'error');
+                return;
+            }
+
+            // Confirmation
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer "${filename}" ?\n\nCette action est irréversible.`)) {
+                return;
+            }
+
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = 'Suppression en cours...';
+
+            try {
+                const response = await fetch('/upload/' + encodeURIComponent(filename), {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok || response.status === 204) {
+                    showMessage('✅ Fichier supprimé avec succès!', 'success');
+                    fileInput.value = '';
+                    selectedFile = null;
+                    
+                    // Reload the file list after a short delay
+                    setTimeout(() => {
+                        loadFiles();
+                    }, 1000);
+                } else if (response.status === 404) {
+                    showMessage('❌ Fichier non trouvé', 'error');
+                } else if (response.status === 403) {
+                    showMessage('❌ Permission refusée', 'error');
+                } else {
+                    const errorText = await response.text().catch(() => response.statusText);
+                    showMessage(`❌ Erreur ${response.status}: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Erreur: ' + error.message, 'error');
+            } finally {
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = '🗑️ Supprimer le fichier';
+            }
+        }
+
+        // Show message
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = 'message ' + type;
+            message.style.display = 'block';
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Allow Enter key to trigger delete
+        document.getElementById('fileInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                deleteFile();
+            }
+        });
+    </script>
+</body>
+</html>
