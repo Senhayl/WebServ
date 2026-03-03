@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Loop.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
+/*   By: shessoun <shessoun@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:07:01 by aaiache           #+#    #+#             */
-/*   Updated: 2026/02/04 19:21:24 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/03/03 13:41:36 by shessoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,13 @@
 #include <poll.h>
 #include "Server.hpp"
 #include "Client.hpp"
+#include "../config/ServerConfig.hpp"
 
 class Loop
 {
 	private:
 		Server& _server;
+		std::vector<ServerConfig> _servers;
 		std::vector<pollfd> _fds;
 		std::map<int, Client*> _clients;
 	
@@ -33,7 +35,7 @@ class Loop
 		void removeClient(size_t index);
 
 	public:
-		Loop(Server& server);
+		Loop(Server& server, const std::vector<ServerConfig>& servers);
 		void run();
 };
 

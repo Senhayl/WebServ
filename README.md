@@ -1,50 +1,50 @@
-# webserv
+*This project has been created as part of the 42 curriculum by aaichache, mlouron, shessoun.*
 
 ## 🕸️ Description
 
-`webserv` est un projet de l'école 42 dont l'objectif est de recréer un **serveur HTTP** en C++, inspiré du fonctionnement de **Nginx**. Le programme doit être capable de gérer des requêtes HTTP, de servir des fichiers statiques et d'exécuter des scripts CGI, tout en respectant les standards du protocole HTTP/1.1.
+`webserv` is a 42 school project whose goal is to recreate an **HTTP server** in C++, inspired by the behavior of **Nginx**. The program must be able to handle HTTP requests, serve static files, and execute CGI scripts, while complying with the HTTP/1.1 protocol standards.
 
-Ce projet met l'accent sur :
+This project focuses on:
 
-* la programmation système
-* la gestion des sockets
-* le multiplexage des connexions
-* la rigueur et la robustesse du code
-
----
-
-## 🎯 Objectifs du projet
-
-* Comprendre le fonctionnement d'un serveur web
-* Manipuler les sockets TCP/IP
-* Implémenter le protocole HTTP/1.1
-* Gérer plusieurs clients simultanément sans bloquer
-* Parser un fichier de configuration
-* Approfondir la programmation orientée objet en C++
+* system programming
+* socket management
+* connection multiplexing
+* code rigor and robustness
 
 ---
 
-## ⚙️ Fonctionnalités
+## 🎯 Project Goals
 
-### Requêtes HTTP
+* Understand how a web server works
+* Manipulate TCP/IP sockets
+* Implement the HTTP/1.1 protocol
+* Handle multiple clients simultaneously without blocking
+* Parse a configuration file
+* Deepen object-oriented programming skills in C++
 
-* Méthodes supportées :
+---
+
+## ⚙️ Features
+
+### HTTP Requests
+
+* Supported methods:
 
   * `GET`
   * `POST`
   * `DELETE`
 
-### Gestion du serveur
+### Server Management
 
-* Serveur non bloquant
-* Multiplexage via `poll()` (ou équivalent)
-* Gestion de plusieurs ports
-* Support de plusieurs *server blocks*
+* Non-blocking server
+* Multiplexing via `poll()` (or equivalent)
+* Multiple port support
+* Multiple *server blocks* support
 
 ### Configuration
 
-* Fichier de configuration inspiré de Nginx
-* Support des directives :
+* Configuration file inspired by Nginx
+* Supported directives:
 
   * `listen`
   * `server_name`
@@ -56,19 +56,19 @@ Ce projet met l'accent sur :
 
 ### CGI
 
-* Exécution de scripts CGI (ex: PHP, Python)
-* Gestion des variables d'environnement
-* Communication serveur ↔ CGI via pipes
+* Execution of CGI scripts (e.g., PHP, Python)
+* Environment variable handling
+* Server ↔ CGI communication via pipes
 
-### Autres fonctionnalités
+### Other Features
 
-* Upload de fichiers
-* Pages d'erreur personnalisées
-* Gestion correcte des codes de statut HTTP
+* File uploads
+* Custom error pages
+* Correct handling of HTTP status codes
 
 ---
 
-## 🗂️ Structure du projet
+## 🗂️ Project Structure
 
 ```
 webserv/
@@ -91,33 +91,33 @@ webserv/
 
 ---
 
-## 🚀 Compilation et exécution
+## 🚀 Build & Run
 
-### Compilation
+### Build
 
 ```bash
 make
 ```
 
-### Lancement du serveur
+### Starting the server
 
 ```bash
 ./webserv conf/default.conf
 ```
 
-Si aucun fichier de configuration n'est fourni, un fichier par défaut est utilisé.
+If no configuration file is provided, a default one is used.
 
 ---
 
-## 🌐 Utilisation
+## 🌐 Usage
 
-Une fois le serveur lancé, vous pouvez accéder au site via votre navigateur :
+Once the server is running, you can access the site via your browser:
 
 ```
 http://localhost:8080
 ```
 
-Exemples de tests avec `curl` :
+Example tests with `curl`:
 
 ```bash
 curl http://localhost:8080/
@@ -129,39 +129,30 @@ curl -X DELETE http://localhost:8080/file.txt
 
 ## 🧪 Tests
 
-* Tests manuels via navigateur
-* Tests avec `curl`
-* Comparaison du comportement avec Nginx
-* Vérification avec des requêtes invalides
+* Manual tests via browser
+* Tests with `curl`
+* Behavior comparison with Nginx
+* Validation with invalid requests
 
 ---
 
-## ⚠️ Contraintes
+## ⚠️ Constraints
 
-* C++98 uniquement
-* Fonctions système autorisées uniquement
-* Aucune fonction bloquante (`fork`, `execve` autorisés pour CGI)
-* Un seul `poll()` (ou équivalent) pour gérer toutes les connexions
+* C++98 only
+* Only authorized system functions
+* No blocking functions (`fork`, `execve` allowed for CGI)
+* A single `poll()` (or equivalent) to handle all connections
 
 ---
 
-## 📚 Ressources utiles
+## 📚 Useful Resources
 
 * RFC 7230–7235 (HTTP/1.1)
-* Documentation Nginx
-* `man poll`, `man socket`, `man bind`
+* Nginx documentation
+* `man poll`, `man socket\`, `man bind`
 
 ---
 
-## 👥 Auteurs
+## ✅ Status
 
-Projet réalisé par :
-
-* [Votre nom]
-* [Nom du binôme]
-
----
-
-## ✅ Statut
-
-🚧 En cours de développement
+🚧 Work in progress

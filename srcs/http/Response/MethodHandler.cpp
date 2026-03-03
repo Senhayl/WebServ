@@ -24,7 +24,8 @@ std::string getContentType(const std::string& path) {
 }
 
 
-HttpResponse MethodHandler::handlerGET(const HttpRequest& req) {
+HttpResponse MethodHandler::handlerGET(const HttpRequest& req, const ServerConfig& server, const Location& loc) {
+	(void)server; (void)loc; // TODO: use root, index, autoindex
 	std::string reqPath = req.getPath();
 	if (reqPath == "/")
 		reqPath = "/index.html";
@@ -52,7 +53,8 @@ HttpResponse MethodHandler::handlerGET(const HttpRequest& req) {
 	return HttpResponse::createResponse(200, body, contentType);
 }
 
-HttpResponse MethodHandler::handlerPOST(const HttpRequest& req) {
+HttpResponse MethodHandler::handlerPOST(const HttpRequest& req, const ServerConfig& server, const Location& loc) {
+	(void)server; (void)loc; // TODO: use upload_path, client_max_body_size
 	if (req.getBody().empty()) {
 		return HttpResponse::createError(400);
 	}
@@ -74,7 +76,8 @@ HttpResponse MethodHandler::handlerPOST(const HttpRequest& req) {
 	return resp;
 }
 
-HttpResponse MethodHandler::handlerDELETE(const HttpRequest& req) {
+HttpResponse MethodHandler::handlerDELETE(const HttpRequest& req, const ServerConfig& server, const Location& loc) {
+	(void)server; (void)loc; // TODO: use root
 	std::string path = "./srcs/http/Pages";
 	path += req.getPath();
 
