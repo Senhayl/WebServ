@@ -117,8 +117,8 @@ bool ServerConfig::isDataValid(std::vector<std::string>& errs) const
 
     if (_root.empty())
         errs.push_back("server: root is empty");
-    else if (_root[0] != '/')
-        errs.push_back("server: root must start with '/'");
+    else if (_root[0] != '/' && _root.compare(0, 2, "./") != 0)
+        errs.push_back("server: root must start with '/' or './'");
     if (!_index.empty() && _index.find('/') != std::string::npos)
         errs.push_back("server: index should be a filename (no '/')");
     if (_clientMaxBodySize == 0)

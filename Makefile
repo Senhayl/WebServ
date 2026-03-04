@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+         #
+#    By: shessoun <shessoun@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/21 15:57:46 by aaiache           #+#    #+#              #
-#    Updated: 2026/02/04 19:33:45 by aaiache          ###   ########.fr        #
+#    Updated: 2026/03/04 13:01:39 by shessoun         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,7 +34,8 @@ SRCS        = srcs/main.c++ \
 			  srcs/http/Request/RequestParser.cpp \
 			  srcs/http/Request/RequestValidator.cpp \
 			  srcs/http/Response/HttpResponse.cpp \
-			  srcs/http/Response/MethodHandler.cpp
+			  srcs/http/Response/MethodHandler.cpp \
+			  srcs/http/Response/CgiHandler.cpp
 
 HEADERS		= srcs/config/ConfigParser.hpp \
               srcs/config/ServerConfig.hpp \
@@ -47,7 +48,8 @@ HEADERS		= srcs/config/ConfigParser.hpp \
 			  srcs/http/Request/RequestParser.hpp \
 			  srcs/http/Request/RequestValidator.hpp \
 			  srcs/http/Response/HttpResponse.hpp \
-			  srcs/http/Response/MethodHandler.hpp
+			  srcs/http/Response/MethodHandler.hpp \
+			  srcs/http/Response/CgiHandler.hpp
 
 OBJS        = $(patsubst $(SRCS_DIR)/%.c++,$(OBJS_DIR)/%.o,$(filter %.c++,$(SRCS))) \
               $(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(filter %.cpp,$(SRCS)))

@@ -120,14 +120,14 @@ bool Location::isDataValid(std::vector<std::string>& errs) const{
 		errs.push_back("location: path is empty");
 	else if (_path[0] != '/')
 		errs.push_back("location: path must start with '/'");
-	if (_root.empty())
+	if (_root.empty() && _return.empty())
 		errs.push_back("location: root is empty");
-	else if (_root[0] != '/')
-		errs.push_back("location: root must start with '/'");
+	else if (!_root.empty() && _root[0] != '/' && _root.compare(0, 2, "./") != 0)
+		errs.push_back("location: root must start with '/' or './'");
 
-	if (_allowedMethods.empty())
+	if (_allowedMethods.empty() && _return.empty())
 		errs.push_back("location: allowed_methods is empty");
-	else
+	else if (!_allowedMethods.empty())
 	{
 		bool hasInvalidMethod = false;
 		bool hasPost = false;
@@ -145,9 +145,6 @@ bool Location::isDataValid(std::vector<std::string>& errs) const{
 		if (!_uploadPath.empty() && !hasPost)
 			errs.push_back("location: upload_path is set but POST is not allowed");
 	}
-	if (_clientMaxBodySize > 1000)
-		errs.push_back("location: client_max_body_size is too large");
-
 	if ((_cgiExtensions.empty() && !_cgiPath.empty()) || (!_cgiExtensions.empty() && _cgiPath.empty()))
 		errs.push_back("location: cgi_extension and cgi_path must be set together");
 

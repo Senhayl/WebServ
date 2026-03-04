@@ -249,7 +249,7 @@
                 reader.onload = async function(event) {
                     const fileContent = event.target.result;
                     
-                    const response = await fetch('/' + file.name, {
+                    const response = await fetch('/upload/' + file.name, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/octet-stream',

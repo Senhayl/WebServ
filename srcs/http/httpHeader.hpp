@@ -2,6 +2,7 @@
 
 #include "Response/MethodHandler.hpp"
 #include "Response/HttpResponse.hpp"
+#include "Response/CgiHandler.hpp"
 #include "Request/HttpRequest.hpp"
 #include "Request/RequestParser.hpp"
 #include "Request/RequestValidator.hpp"
@@ -22,9 +23,11 @@ Location findLocation(ServerConfig server, std::string uri) {
 	for (size_t i = 0; i < server.getLocation().size(); i++) {
 		const std::string& locPath = server.getLocation().at(i).getPath();
 		if (uri.compare(0, locPath.size(), locPath) == 0) {
-			if (bestLen < locPath.size()) {
-				bestLen = locPath.size();
-				loc = server.getLocation().at(i);
+			if (uri.size() == locPath.size() || uri[locPath.size()] == '/' || locPath[locPath.size() - 1] == '/') {
+				if (bestLen < locPath.size()) {
+					bestLen = locPath.size();
+					loc = server.getLocation().at(i);
+				}
 			}
 		}
 	}
@@ -37,6 +40,15 @@ std::string getAnswer(std::string rawRequest, const std::vector<ServerConfig> se
 	
 	ServerConfig srvConf = findServerConfig(servers, request.getHeader("Host"));
 	Location servLoc = findLocation(srvConf, request.getPath());
+	//au cas ou il faut rediriger avec le fichier de config
+	if (!servLoc.getReturn().empty()) {
+		HttpResponse resp(301);
+		resp.setStatusMessage(301);
+		resp.addHeader("Location", servLoc.getReturn());
+		resp.addHeader("Content-Length", "0");
+		resp.addHeader("Connection", "close");
+		return resp.toString();
+	}
 	if (!servLoc.getAllowedMethods().empty()) {
 		const std::vector<std::string>& methods = servLoc.getAllowedMethods();
 		bool allowed = false;
@@ -53,9 +65,28 @@ std::string getAnswer(std::string rawRequest, const std::vector<ServerConfig> se
 	bool isValid = validator.validate(request);
 	
 	HttpResponse response;
+
+	if (servLoc.getClientMaxBodySize() > 0 && request.getBody().size() > servLoc.getClientMaxBodySize()) {
+		return HttpResponse::createError(413).toString();
+	}
 	
+	// Détection CGI
+	bool isCgi = false;
+	if (!servLoc.getCgiExtensions().empty() && !servLoc.getCgiPath().empty()) {
+		const std::string& ext = servLoc.getCgiExtensions();
+		std::string cleanPath = request.getPath();
+		size_t qpos = cleanPath.find('?');
+		if (qpos != std::string::npos)
+			cleanPath = cleanPath.substr(0, qpos);
+		if (cleanPath.size() >= ext.size() &&
+			cleanPath.substr(cleanPath.size() - ext.size()) == ext)
+			isCgi = true;
+	}
+
 	if (!isValid) {
 		response = HttpResponse::createError(request.getStatusCode());
+	} else if (isCgi) {
+		response = CgiHandler::execute(request, srvConf, servLoc);
 	} else {
 		if (request.getMethod() == "GET")
 			response = MethodHandler::handlerGET(request, srvConf, servLoc);

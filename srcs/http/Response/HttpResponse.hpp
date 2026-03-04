@@ -25,7 +25,9 @@ public:
 			case 400: _statusMessage = "Bad Request";break;
 			case 404: _statusMessage = "Not Found"; break;
 			case 405: _statusMessage = "Method Not Allowed"; break;
+			case 413: _statusMessage = "Content Too Large"; break;
 			case 500: _statusMessage = "Internal Server Error"; break;
+			case 504: _statusMessage = "Gateway Timeout"; break;
 			case 505: _statusMessage = "HTTP Version Not Supported"; break;
 			default: _statusMessage = "Unknown"; break;
 		}

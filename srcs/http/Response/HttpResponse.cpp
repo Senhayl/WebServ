@@ -31,13 +31,13 @@ std::string HttpResponse::toString() {
 	
 	oss << "HTTP/1.1 " << _statusCode << " " << _statusMessage << "\r\n";
 	 if (_headers.find("Date") == _headers.end())
-        addHeader("Date", getCurrDate());
-    if (_headers.find("Server") == _headers.end())
-        addHeader("Server", "Webserv");
-    if (_headers.find("Connection") == _headers.end())
+		addHeader("Date", getCurrDate());
+	if (_headers.find("Server") == _headers.end())
+		addHeader("Server", "Webserv");
+	if (_headers.find("Connection") == _headers.end())
 	{
 		if (_statusCode == 400)
-        	addHeader("Connection", "close");
+			addHeader("Connection", "close");
 		else
 			addHeader("Connection", "keep-alive");
 	}
@@ -90,6 +90,9 @@ HttpResponse HttpResponse::createError(int code) {
 	resp.addHeader("Server", "Webserv");
 	resp.addHeader("Content-Type", "text/html");
 	resp.addHeader("Connection", "close");
+	std::ostringstream cl;
+	cl << resp.getBody().size();
+	resp.addHeader("Content-Length", cl.str());
 	return resp;
 }
 
@@ -101,5 +104,8 @@ HttpResponse HttpResponse::createResponse(int code, std::string& body, std::stri
 	resp.addHeader("Server", "Webserv");
 	resp.addHeader("Connection", "keep-alive");
 	resp.addHeader("Content-Type", contentType);
+	std::ostringstream cl;
+	cl << body.size();
+	resp.addHeader("Content-Length", cl.str());
 	return resp;
 }

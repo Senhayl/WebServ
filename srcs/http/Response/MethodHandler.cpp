@@ -1,5 +1,34 @@
 #include "MethodHandler.hpp"
+#include <sys/stat.h>
+#include <dirent.h>
 
+static std::string generateAutoindex(const std::string& dirPath, const std::string& uri) {
+	DIR* dir = opendir(dirPath.c_str());
+	if (!dir)
+		return "";
+
+	std::ostringstream html;
+	html << "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">"
+		 << "<title>Index of " << uri << "</title></head><body>"
+		 << "<h1>Index of " << uri << "</h1><hr><ul>";
+
+	struct dirent* entry;
+	while ((entry = readdir(dir)) != NULL) {
+		std::string name = entry->d_name;
+		if (name == ".")
+			continue;
+		std::string href = uri;
+		if (href.empty() || href[href.size() - 1] != '/')
+			href += '/';
+		href += name;
+		if (entry->d_type == DT_DIR)
+			name += "/";
+		html << "<li><a href=\"" << href << "\">" << name << "</a></li>";
+	}
+	closedir(dir);
+	html << "</ul><hr></body></html>";
+	return html.str();
+}
 
 std::string getContentType(const std::string& path) {
 	size_t pos = path.find_last_of('.');
@@ -25,10 +54,13 @@ std::string getContentType(const std::string& path) {
 
 
 HttpResponse MethodHandler::handlerGET(const HttpRequest& req, const ServerConfig& server, const Location& loc) {
-	(void)server; (void)loc; // TODO: use root, index, autoindex
 	std::string reqPath = req.getPath();
-	if (reqPath == "/")
-		reqPath = "/index.html";
+	if (reqPath == "/") {
+		if (loc.getIndex().empty())
+			reqPath = "/" + server.getIndex();
+		else
+			reqPath = "/" + loc.getIndex();
+	}
 	if (reqPath == "/redirections.html") {
 		HttpResponse resp(301);
 		resp.setStatusMessage(301);
@@ -38,8 +70,26 @@ HttpResponse MethodHandler::handlerGET(const HttpRequest& req, const ServerConfi
 		return resp;
 	}
 
-	std::string path = "./srcs/http/Pages";
+	std::string path;
+	if (loc.getRoot().empty())
+		path = server.getRoot();
+	else
+		path = loc.getRoot();
+
 	path += reqPath;
+
+	struct stat st;
+	if (stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) {
+		if (loc.getAutoindex()) {
+			std::string listing = generateAutoindex(path, reqPath);
+			if (listing.empty())
+				return HttpResponse::createError(500);
+			std::string ct = "text/html";
+			return HttpResponse::createResponse(200, listing, ct);
+		}
+		return HttpResponse::createError(403);
+	}
+
 	std::ifstream file(path.c_str());
 	if (!file.is_open())
 		return HttpResponse::createError(404);
@@ -54,13 +104,16 @@ HttpResponse MethodHandler::handlerGET(const HttpRequest& req, const ServerConfi
 }
 
 HttpResponse MethodHandler::handlerPOST(const HttpRequest& req, const ServerConfig& server, const Location& loc) {
-	(void)server; (void)loc; // TODO: use upload_path, client_max_body_size
+	(void)server;
 	if (req.getBody().empty()) {
 		return HttpResponse::createError(400);
 	}
-
-	std::string path = "./srcs/http/Pages/upload";
-	path += req.getPath();
+	if (loc.getUploadPath().empty()) {
+		return HttpResponse::createError(403);
+	}
+	std::string uri = req.getPath();
+	std::string filename = uri.substr(uri.find_last_of('/'));
+	std::string path = loc.getUploadPath() + filename;
 	
 	std::ofstream file(path.c_str(), std::ios::out);
 	if (!file.is_open()) {
@@ -77,8 +130,11 @@ HttpResponse MethodHandler::handlerPOST(const HttpRequest& req, const ServerConf
 }
 
 HttpResponse MethodHandler::handlerDELETE(const HttpRequest& req, const ServerConfig& server, const Location& loc) {
-	(void)server; (void)loc; // TODO: use root
-	std::string path = "./srcs/http/Pages";
+	std::string path;
+	if (loc.getRoot().empty())
+		path = server.getRoot();
+	else
+		path = loc.getRoot();
 	path += req.getPath();
 
 	std::ifstream file(path.c_str());
