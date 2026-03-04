@@ -96,6 +96,36 @@ HttpResponse HttpResponse::createError(int code) {
 	return resp;
 }
 
+std::string HttpResponse::loadError(int code, const ServerConfig& server) {
+	const std::map<int, std::string>& pages = server.getErrorPage();
+	std::map<int, std::string>::const_iterator it = pages.find(code);
+	if (it != pages.end()) {
+		std::string path = server.getRoot() + it->second;
+		std::ifstream file(path.c_str());
+		if (file.is_open()) {
+			std::ostringstream content;
+			content << file.rdbuf();
+			file.close();
+			return content.str();
+		}
+	}
+	return loadError(code);
+}
+
+HttpResponse HttpResponse::createError(int code, const ServerConfig& server) {
+	HttpResponse resp(code);
+	resp.setStatusMessage(code);
+	resp.setBody(resp.loadError(code, server));
+	resp.addHeader("Date", resp.getCurrDate());
+	resp.addHeader("Server", "Webserv");
+	resp.addHeader("Content-Type", "text/html");
+	resp.addHeader("Connection", "close");
+	std::ostringstream cl;
+	cl << resp.getBody().size();
+	resp.addHeader("Content-Length", cl.str());
+	return resp;
+}
+
 HttpResponse HttpResponse::createResponse(int code, std::string& body, std::string& contentType) {
 	HttpResponse resp(code);
 	resp.setStatusMessage(code);

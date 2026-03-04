@@ -59,7 +59,7 @@ std::string getAnswer(std::string rawRequest, const std::vector<ServerConfig> se
 			}
 		}
 		if (!allowed)
-			return HttpResponse::createError(405).toString();
+			return HttpResponse::createError(405, srvConf).toString();
 	}
 	RequestValidator validator;
 	bool isValid = validator.validate(request);
@@ -67,7 +67,7 @@ std::string getAnswer(std::string rawRequest, const std::vector<ServerConfig> se
 	HttpResponse response;
 
 	if (servLoc.getClientMaxBodySize() > 0 && request.getBody().size() > servLoc.getClientMaxBodySize()) {
-		return HttpResponse::createError(413).toString();
+		return HttpResponse::createError(413, srvConf).toString();
 	}
 	
 	// Détection CGI
@@ -84,7 +84,7 @@ std::string getAnswer(std::string rawRequest, const std::vector<ServerConfig> se
 	}
 
 	if (!isValid) {
-		response = HttpResponse::createError(request.getStatusCode());
+		response = HttpResponse::createError(request.getStatusCode(), srvConf);
 	} else if (isCgi) {
 		response = CgiHandler::execute(request, srvConf, servLoc);
 	} else {

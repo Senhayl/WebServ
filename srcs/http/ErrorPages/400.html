@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>400 — Bad Request</title>
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body {
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+			background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+			color: #fff;
+			padding: 20px;
+		}
+		.container { text-align: center; max-width: 500px; }
+		.code { font-size: 120px; font-weight: 800; line-height: 1; margin-bottom: 20px; text-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+		h1 { font-size: 28px; font-weight: 600; margin-bottom: 12px; }
+		p { font-size: 16px; opacity: 0.9; margin-bottom: 30px; }
+		a {
+			display: inline-block; padding: 12px 28px;
+			background: rgba(255,255,255,0.2); color: #fff;
+			text-decoration: none; border-radius: 8px;
+			border: 2px solid rgba(255,255,255,0.3); font-weight: 500; transition: all 0.2s;
+		}
+		a:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="code">400</div>
+		<h1>Bad Request</h1>
+		<p>The server could not process this request due to invalid syntax.</p>
+		<a href="/">← Back to Home</a>
+	</div>
+</body>
+</html>

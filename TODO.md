@@ -172,18 +172,7 @@ Config correctly parses `cgi_extension` and `cgi_path`, but there is **zero CGI 
 | 1 | Multiple servers / ports | ❌ Not done |
 | 2 | Config wired to handlers | ❌ Not done |
 | 3 | poll() read+write simultaneously | ❌ Not done |
-| 4 | CGI execution | ❌ Not done |
 | 5 | Chunked decoding | ❌ Not done |
-| 6 | Allowed methods enforced | ❌ Not done |
-| 7 | `root` from config | ❌ Not done |
-| 8 | `index` from config | ❌ Not done |
-| 9 | Redirections from config | ❌ Not done |
-| 10 | `upload_path` from config | ❌ Not done |
-| 11 | `client_max_body_size` enforced | ❌ Not done |
-| 12 | Directory listing (autoindex) | ❌ Not done |
-| 13 | Error pages from config | ❌ Not done |
-| 14 | Missing default error pages | ❌ Incomplete |
-| 15 | `Content-Length` in all responses | ❌ Not done |
 | 16 | No errno after read/write | ⚠️ To verify |
 | 17 | Default config path fallback | ❌ Not done |
 | 18 | Partial send() handling | ❌ Not done |
@@ -195,4 +184,3 @@ Config correctly parses `cgi_extension` and `cgi_path`, but there is **zero CGI 
 | 24 | README Resources + AI usage | ❌ Missing |
 | 25 | README "Instructions" label | ❌ Wrong label |
 | B1 | Cookies / sessions | 🔵 Bonus |
-| B2 | Multiple CGI types | 🔵 Bonus |

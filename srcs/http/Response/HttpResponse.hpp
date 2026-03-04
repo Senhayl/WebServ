@@ -7,6 +7,7 @@
 #include <sstream>
 #include <ctime>
 #include <stdlib.h>
+#include "../../config/ServerConfig.hpp"
 
 class HttpResponse {
 public:
@@ -51,7 +52,9 @@ public:
 
 	std::string toString();
 	std::string loadError(int code);
+	std::string loadError(int code, const ServerConfig& server);
 	static HttpResponse createError(int code);
+	static HttpResponse createError(int code, const ServerConfig& server);
 	static HttpResponse createResponse(int code, std::string& body, std::string& contentType);
 	
 	void print() const;
