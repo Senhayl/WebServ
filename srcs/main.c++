@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c++                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shessoun <shessoun@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mlouron <mlouron@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 19:37:46 by aaiache           #+#    #+#             */
-/*   Updated: 2026/03/03 13:41:36 by shessoun         ###   ########.fr       */
+/*   Updated: 2026/03/13 13:53:20 by mlouron          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,18 +16,23 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <set>
 
 int main(int ac, char **av)
 {
-	if (ac != 2)
+	if (ac > 2)
 	{
-		std::cerr << "Usage: " << av[0] << " <config_file>" << std::endl;
+		std::cerr << "Usage: " << av[0] << " [config_file]" << std::endl;
 		return 1;
 	}
 	try
 	{
+		std::string configPath = "./srcs/config/default.conf";
+		if (ac == 2)
+			configPath = av[1];
+
 		ConfigParser parser;
-		Config config = parser.parse(av[1]);
+		Config config = parser.parse(configPath);
 		std::vector<std::string> errs;
 
 		const std::vector<ServerConfig>& servers = config.getServers();
@@ -41,20 +46,37 @@ int main(int ac, char **av)
 				std::cerr << "- " << errs[i] << std::endl;
 			return 1;
 		}
-		std::cout << "Starting " << servers.size() << " server(s)..." << std::endl;
-		
-		//1 serveur et 1 port pour linstant. need plusieurs servers sur plusieurs ports?
-		if (servers.empty() || servers[0].getListen().empty())
+		if (servers.empty())
 		{
 			std::cerr << "No server configured" << std::endl;
 			return 1;
 		}
-		
-		int port = servers[0].getListen()[0];
-		
-		Server server(port);
-		Loop loop(server, servers);
+
+		std::set<int> uniquePorts;
+		for (size_t i = 0; i < servers.size(); ++i)
+		{
+			const std::vector<int>& listenPorts = servers[i].getListen();
+			for (size_t j = 0; j < listenPorts.size(); ++j)
+				uniquePorts.insert(listenPorts[j]);
+		}
+
+		if (uniquePorts.empty())
+		{
+			std::cerr << "No listen port configured" << std::endl;
+			return 1;
+		}
+
+		std::vector<Server*> runtimeServers;
+		for (std::set<int>::const_iterator it = uniquePorts.begin(); it != uniquePorts.end(); ++it)
+			runtimeServers.push_back(new Server(*it));
+
+		std::cout << "Starting " << runtimeServers.size() << " listening socket(s)..." << std::endl;
+
+		Loop loop(runtimeServers, servers);
 		loop.run();
+
+		for (size_t i = 0; i < runtimeServers.size(); ++i)
+			delete runtimeServers[i];
 	}
 	catch (const std::exception& e)
 	{

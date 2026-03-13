@@ -3,21 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mlouron <mlouron@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:05:09 by aaiache           #+#    #+#             */
-/*   Updated: 2026/02/04 19:16:22 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/03/13 14:04:28 by mlouron          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include <unistd.h>
 
-Client::Client(int fd) : _fd(fd) {}
+Client::Client(int fd) : _fd(fd), _sentBytes(0), _lastActivity(std::time(NULL)) {}
 
 Client::~Client()
 {
-    close(_fd);
 }
 
 int Client::getFd() const
@@ -28,6 +27,7 @@ int Client::getFd() const
 void Client::setResponse(const std::string& response)
 {
     _response = response;
+    _sentBytes = 0;
 }
 
 const std::string& Client::getResponse() const
@@ -38,6 +38,27 @@ const std::string& Client::getResponse() const
 void Client::clearResponse()
 {
     _response.clear();
+    _sentBytes = 0;
+}
+
+size_t Client::getSentBytes() const
+{
+    return _sentBytes;
+}
+
+void Client::addSentBytes(size_t sent)
+{
+    _sentBytes += sent;
+}
+
+void Client::touchActivity()
+{
+	_lastActivity = std::time(NULL);
+}
+
+time_t Client::getLastActivity() const
+{
+	return _lastActivity;
 }
 
 std::string& Client::getBuffer()

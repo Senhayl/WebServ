@@ -1,97 +1,26 @@
 *This project has been created as part of the 42 curriculum by aaichache, mlouron, shessoun.*
 
-## 🕸️ Description
+## Description
 
-`webserv` is a 42 school project whose goal is to recreate an **HTTP server** in C++, inspired by the behavior of **Nginx**. The program must be able to handle HTTP requests, serve static files, and execute CGI scripts, while complying with the HTTP/1.1 protocol standards.
+`webserv` is a C++98 HTTP server project from 42.
+The objective is to implement a browser-compatible web server handling core HTTP features:
 
-This project focuses on:
+- HTTP request parsing and response generation
+- static file serving
+- methods `GET`, `POST`, `DELETE`
+- configuration file parsing (Nginx-like blocks)
+- route-based behavior (`location`)
+- CGI execution (Python/PHP examples)
 
-* system programming
-* socket management
-* connection multiplexing
-* code rigor and robustness
+Current implementation status is **work in progress**.
 
----
+## Instructions
 
-## 🎯 Project Goals
+### Requirements
 
-* Understand how a web server works
-* Manipulate TCP/IP sockets
-* Implement the HTTP/1.1 protocol
-* Handle multiple clients simultaneously without blocking
-* Parse a configuration file
-* Deepen object-oriented programming skills in C++
-
----
-
-## ⚙️ Features
-
-### HTTP Requests
-
-* Supported methods:
-
-  * `GET`
-  * `POST`
-  * `DELETE`
-
-### Server Management
-
-* Non-blocking server
-* Multiplexing via `poll()` (or equivalent)
-* Multiple port support
-* Multiple *server blocks* support
-
-### Configuration
-
-* Configuration file inspired by Nginx
-* Supported directives:
-
-  * `listen`
-  * `server_name`
-  * `root`
-  * `index`
-  * `error_page`
-  * `client_max_body_size`
-  * `location`
-
-### CGI
-
-* Execution of CGI scripts (e.g., PHP, Python)
-* Environment variable handling
-* Server ↔ CGI communication via pipes
-
-### Other Features
-
-* File uploads
-* Custom error pages
-* Correct handling of HTTP status codes
-
----
-
-## 🗂️ Project Structure
-
-```
-webserv/
-├── conf/
-│   └── default.conf
-├── src/
-│   ├── main.cpp
-│   ├── Server/
-│   ├── Client/
-│   ├── Request/
-│   ├── Response/
-│   └── CGI/
-├── include/
-│   └── webserv.hpp
-├── www/
-│   └── index.html
-├── Makefile
-└── README.md
-```
-
----
-
-## 🚀 Build & Run
+- Linux or Unix-like environment
+- `c++` compiler supporting C++98
+- `make`
 
 ### Build
 
@@ -99,60 +28,72 @@ webserv/
 make
 ```
 
-### Starting the server
+### Run
 
 ```bash
-./webserv conf/default.conf
+./webserv ./srcs/config/default.conf
 ```
 
-If no configuration file is provided, a default one is used.
-
----
-
-## 🌐 Usage
-
-Once the server is running, you can access the site via your browser:
-
-```
-http://localhost:8080
-```
-
-Example tests with `curl`:
+You can also run without argument to use the default path:
 
 ```bash
-curl http://localhost:8080/
-curl -X POST http://localhost:8080/upload
-curl -X DELETE http://localhost:8080/file.txt
+./webserv
 ```
 
----
+### Useful local tests
 
-## 🧪 Tests
+```bash
+curl -i http://localhost:8080/
+curl -i -X POST http://localhost:8080/upload/test.txt -d 'hello'
+curl -i -X DELETE http://localhost:8080/upload/test.txt
+curl -i http://localhost:8080/cgi-bin/hello.py
+```
 
-* Manual tests via browser
-* Tests with `curl`
-* Behavior comparison with Nginx
-* Validation with invalid requests
+You can also compare behaviors with NGINX for status codes and headers.
 
----
+## Features (Current Scope)
 
-## ⚠️ Constraints
+- Single binary: `webserv`
+- Configuration directives parsed:
+  - `listen`, `server_name`, `root`, `index`, `error_page`, `client_max_body_size`
+  - `location`, `allowed_methods`, `return`, `upload_path`, `autoindex`, `cgi_extension`, `cgi_path`
+- Default error pages available in `srcs/http/ErrorPages/`
+- CGI examples included:
+  - Python: `srcs/http/Pages/cgi-bin/hello.py`
+  - PHP: `srcs/http/Pages/cgi-bin-php/calc.php`
 
-* C++98 only
-* Only authorized system functions
-* No blocking functions (`fork`, `execve` allowed for CGI)
-* A single `poll()` (or equivalent) to handle all connections
+## Project Layout
 
----
+```text
+.
+├── Makefile
+├── srcs/
+│   ├── main.c++
+│   ├── config/
+│   ├── server/
+│   └── http/
+└── README.md
+```
 
-## 📚 Useful Resources
+## Resources
 
-* RFC 7230–7235 (HTTP/1.1)
-* Nginx documentation
-* `man poll`, `man socket\`, `man bind`
+### Classic references
 
----
+- RFC 7230, RFC 7231 (HTTP/1.1 syntax and semantics)
+- NGINX documentation (for behavior comparison)
+- Linux man pages: `poll(2)`, `socket(2)`, `accept(2)`, `send(2)`, `recv(2)`, `fork(2)`, `execve(2)`, `waitpid(2)`
 
-## ✅ Status
+### AI usage in this project
 
-🚧 Work in progress
+AI tools were used as **assistant support**, mainly for:
+
+- reviewing parser edge cases and proposing test ideas
+- generating checklists for HTTP status/error handling
+- helping draft and refine documentation text
+
+All generated suggestions were manually reviewed, discussed between teammates, and adapted before integration.
+No AI-generated code was copied blindly without understanding and validation.
+
+## Status
+
+🚧 Mandatory part is still being finalized and hardened for full subject compliance.

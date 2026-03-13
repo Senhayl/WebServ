@@ -77,44 +77,43 @@ bool RequestParser::parseHeader(const std::string& line, HttpRequest& request) {
 
 HttpRequest RequestParser::parse(const std::string& rawRequest) {
 	HttpRequest request;
-	std::vector<std::string> lines = splitRequest(rawRequest);
-	
-	if (lines.empty()) {
+	size_t headerEnd = rawRequest.find("\r\n\r\n");
+	if (headerEnd == std::string::npos) {
 		request.setValid(false);
 		request.setStatusCode(400);
 		return request;
 	}
-	
-	if (!parseRequestLine(lines[0], request)) {
+
+	std::string headerPart = rawRequest.substr(0, headerEnd);
+	std::string bodyPart = rawRequest.substr(headerEnd + 4);
+
+	size_t requestLineEnd = headerPart.find("\r\n");
+	std::string requestLine = headerPart;
+	if (requestLineEnd != std::string::npos)
+		requestLine = headerPart.substr(0, requestLineEnd);
+
+	if (!parseRequestLine(requestLine, request)) {
 		request.setValid(false);
 		request.setStatusCode(400);
 		return request;
 	}
-	
-	bool isBody = false;
-	std::string bodyContent;
-	
-	for (size_t i = 1; i < lines.size(); i++) {
-		if (lines[i] == "\r\n" || lines[i].empty()) {
-			isBody = true;
-			continue;
+
+	size_t headersStart = (requestLineEnd == std::string::npos) ? headerPart.size() : requestLineEnd + 2;
+	while (headersStart < headerPart.size()) {
+		size_t lineEnd = headerPart.find("\r\n", headersStart);
+		if (lineEnd == std::string::npos)
+			lineEnd = headerPart.size();
+
+		std::string line = headerPart.substr(headersStart, lineEnd - headersStart);
+		if (!line.empty() && !parseHeader(line, request)) {
+			std::cerr << "Warning: Invalid header format: " << line << std::endl;
 		}
-		
-		if (isBody) {
-			if (!bodyContent.empty()) {
-				bodyContent += "\n";
-			}
-			bodyContent += lines[i];
-		} else {
-			if (!parseHeader(lines[i], request)) {
-				std::cerr << "Warning: Invalid header format: " << lines[i] << std::endl;
-			}
-		}
+
+		headersStart = lineEnd + 2;
 	}
-	
-	if (!bodyContent.empty()) {
-		request.setBody(bodyContent);
-	}
+
+	if (!bodyPart.empty())
+		request.setBody(bodyPart);
 	request.setValid(true);
 	request.setStatusCode(200);
 	
