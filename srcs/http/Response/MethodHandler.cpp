@@ -54,6 +54,13 @@ std::string getContentType(const std::string& path) {
 
 
 HttpResponse MethodHandler::handlerGET(const HttpRequest& req, const ServerConfig& server, const Location& loc) {
+	bool isAllowed = false;
+	for (size_t i = 0; i < loc.getAllowedMethods().size(); i++) {
+		if (loc.getAllowedMethods()[i] == "GET")
+			isAllowed = true;
+	}
+	if (!isAllowed)
+		return HttpResponse::createError(405, server);
 	std::string reqPath = req.getPath();
 	if (reqPath == "/") {
 		if (loc.getIndex().empty())
@@ -83,16 +90,16 @@ HttpResponse MethodHandler::handlerGET(const HttpRequest& req, const ServerConfi
 		if (loc.getAutoindex()) {
 			std::string listing = generateAutoindex(path, reqPath);
 			if (listing.empty())
-				return HttpResponse::createError(500);
+				return HttpResponse::createError(500, server);
 			std::string ct = "text/html";
 			return HttpResponse::createResponse(200, listing, ct);
 		}
-		return HttpResponse::createError(403);
+		return HttpResponse::createError(403, server);
 	}
 
 	std::ifstream file(path.c_str());
 	if (!file.is_open())
-		return HttpResponse::createError(404);
+		return HttpResponse::createError(404, server);
 	
 	std::ostringstream content;
 	content << file.rdbuf();
@@ -104,12 +111,21 @@ HttpResponse MethodHandler::handlerGET(const HttpRequest& req, const ServerConfi
 }
 
 HttpResponse MethodHandler::handlerPOST(const HttpRequest& req, const ServerConfig& server, const Location& loc) {
-	(void)server;
+	bool isAllowed = false;
+	for (size_t i = 0; i < loc.getAllowedMethods().size(); i++) {
+		if (loc.getAllowedMethods()[i] == "POST")
+			isAllowed = true;
+	}
+	if (!isAllowed)
+		return HttpResponse::createError(405, server);
 	if (req.getBody().empty()) {
-		return HttpResponse::createError(400);
+		return HttpResponse::createError(400, server);
 	}
 	if (loc.getUploadPath().empty()) {
-		return HttpResponse::createError(403);
+		return HttpResponse::createError(403, server);
+	}
+	if (req.getBody().size() > loc.getClientMaxBodySize()) {
+		return HttpResponse::createError(413, server);
 	}
 	std::string uri = req.getPath();
 	std::string filename = uri.substr(uri.find_last_of('/'));
@@ -117,7 +133,7 @@ HttpResponse MethodHandler::handlerPOST(const HttpRequest& req, const ServerConf
 	
 	std::ofstream file(path.c_str(), std::ios::out);
 	if (!file.is_open()) {
-		return HttpResponse::createError(500);
+		return HttpResponse::createError(500, server);
 	}
 	file.write(req.getBody().c_str(), req.getBody().size());
 	file.close();
@@ -131,6 +147,13 @@ HttpResponse MethodHandler::handlerPOST(const HttpRequest& req, const ServerConf
 
 HttpResponse MethodHandler::handlerDELETE(const HttpRequest& req, const ServerConfig& server, const Location& loc) {
 	std::string path;
+	bool isAllowed = false;
+	for (size_t i = 0; i < loc.getAllowedMethods().size(); i++) {
+		if (loc.getAllowedMethods()[i] == "DELETE")
+			isAllowed = true;
+	}
+	if (!isAllowed)
+		return HttpResponse::createError(405, server);
 	if (loc.getRoot().empty())
 		path = server.getRoot();
 	else
@@ -139,11 +162,11 @@ HttpResponse MethodHandler::handlerDELETE(const HttpRequest& req, const ServerCo
 
 	std::ifstream file(path.c_str());
 	if (!file.is_open()) {
-		return HttpResponse::createError(404);
+		return HttpResponse::createError(404, server);
 	}
 	file.close();
 	if (remove(path.c_str()) != 0) {
-		return HttpResponse::createError(500);
+		return HttpResponse::createError(500, server);
 	}
 
 	HttpResponse resp(204);
