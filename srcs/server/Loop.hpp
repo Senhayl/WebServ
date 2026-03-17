@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Loop.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shessoun <shessoun@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:07:01 by aaiache           #+#    #+#             */
-/*   Updated: 2026/03/03 13:41:36 by shessoun         ###   ########.fr       */
+/*   Updated: 2026/03/17 14:15:18 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 #include <poll.h>
 #include "Server.hpp"
 #include "Client.hpp"
@@ -24,18 +25,22 @@
 class Loop
 {
 	private:
-		Server& _server;
+		std::vector<Server*> _listeningServers;
+		std::set<int> _serverFds;
 		std::vector<ServerConfig> _servers;
 		std::vector<pollfd> _fds;
 		std::map<int, Client*> _clients;
 	
-		void acceptClient();
+		void acceptClient(int serverFd);
 		void handleClientRead(size_t index);
 		void handleClientWrite(size_t index);
 		void removeClient(size_t index);
+		void cleanupClients();
+		bool isServerFd(int fd) const;
 
 	public:
-		Loop(Server& server, const std::vector<ServerConfig>& servers);
+		Loop(const std::vector<Server*>& listeningServers, const std::vector<ServerConfig>& servers);
+		~Loop();
 		void run();
 };
 

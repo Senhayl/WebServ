@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Loop.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shessoun <shessoun@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:06:58 by aaiache           #+#    #+#             */
-/*   Updated: 2026/03/03 13:44:25 by shessoun         ###   ########.fr       */
+/*   Updated: 2026/03/17 14:15:36 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,41 @@
 #include "../http/httpHeader.hpp"
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <csignal>
 
-Loop::Loop(Server& server, const std::vector<ServerConfig>& servers)
-	: _server(server), _servers(servers)
-{
-	_fds = server.getPollFds();
+static volatile sig_atomic_t g_stop = 0;
+
+static void signalHandler(int) {
+	g_stop = 1;
 }
-void Loop::acceptClient()
+
+Loop::Loop(const std::vector<Server*>& listeningServers, const std::vector<ServerConfig>& servers)
+	: _listeningServers(listeningServers), _servers(servers)
 {
-	int client_fd = accept(_server.getFd(), NULL, NULL);
+	for (size_t i = 0; i < _listeningServers.size(); ++i)
+	{
+		const std::vector<pollfd>& serverPolls = _listeningServers[i]->getPollFds();
+		for (size_t j = 0; j < serverPolls.size(); ++j)
+		{
+			_fds.push_back(serverPolls[j]);
+			_serverFds.insert(serverPolls[j].fd);
+		}
+	}
+}
+
+Loop::~Loop()
+{
+	cleanupClients();
+}
+
+bool Loop::isServerFd(int fd) const
+{
+	return _serverFds.find(fd) != _serverFds.end();
+}
+
+void Loop::acceptClient(int serverFd)
+{
+	int client_fd = accept(serverFd, NULL, NULL);
 	if (client_fd < 0)
 		return;
 
@@ -31,7 +57,7 @@ void Loop::acceptClient()
 
 	pollfd client_poll;
 	client_poll.fd = client_fd;
-	client_poll.events = POLLIN;
+	client_poll.events = POLLIN | POLLOUT;
 	client_poll.revents = 0;
 
 	_fds.push_back(client_poll);
@@ -77,7 +103,6 @@ void Loop::handleClientRead(size_t index)
 			std::string response = getAnswer(buff, this->_servers);
 			_clients[fd]->setResponse(response);
 			_clients[fd]->getBuffer().clear();
-			_fds[index].events = POLLOUT;
 		}
 	}
 }
@@ -88,15 +113,30 @@ void Loop::removeClient(size_t index)
 
 	delete _clients[fd];
 	_clients.erase(fd);
-
-	close(fd);
 	_fds.erase(_fds.begin() + index);
+}
+
+void Loop::cleanupClients()
+{
+	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+		delete it->second;
+	_clients.clear();
+
+	for (std::vector<pollfd>::iterator it = _fds.begin(); it != _fds.end();)
+	{
+		if (!isServerFd(it->fd))
+			it = _fds.erase(it);
+		else
+			++it;
+	}
 }
 
 void Loop::handleClientWrite(size_t index)
 {
 	int fd = _fds[index].fd;
 	const std::string& response = _clients[fd]->getResponse();
+	if (response.empty())
+		return;
 	
 	ssize_t sent = send(fd, response.c_str(), response.length(), 0);
 	if (sent <= 0)
@@ -111,13 +151,14 @@ void Loop::handleClientWrite(size_t index)
 	else
 	{
 		_clients[fd]->clearResponse();
-		_fds[index].events = POLLIN;
 	}
 }
 
 void Loop::run()
 {
-	while (true)
+	signal(SIGINT, signalHandler);
+	signal(SIGTERM, signalHandler);
+	while (!g_stop)
 	{
 		if (poll(&_fds[0], _fds.size(), -1) < 0)
 			continue;
@@ -125,18 +166,18 @@ void Loop::run()
 		{
 			if (_fds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
 			{
-				if (_fds[i].fd != _server.getFd())
+				if (!isServerFd(_fds[i].fd))
 					removeClient(i--);
 				continue;
 			}
 			if (_fds[i].revents & POLLIN)
 			{
-				if (_fds[i].fd == _server.getFd())
-					acceptClient();
+				if (isServerFd(_fds[i].fd))
+					acceptClient(_fds[i].fd);
 				else
 					handleClientRead(i);
 			}
-			else if (_fds[i].revents & POLLOUT)
+			if (i < _fds.size() && (_fds[i].revents & POLLOUT) && !isServerFd(_fds[i].fd))
 				handleClientWrite(i);
 		}
 	}

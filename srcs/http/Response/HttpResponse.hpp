@@ -24,6 +24,7 @@ public:
 			case 204: _statusMessage = "No Content"; break;
 			case 301: _statusMessage = "Moved Permanently"; break;
 			case 400: _statusMessage = "Bad Request";break;
+			case 403: _statusMessage = "Forbidden"; break;
 			case 404: _statusMessage = "Not Found"; break;
 			case 405: _statusMessage = "Method Not Allowed"; break;
 			case 413: _statusMessage = "Content Too Large"; break;
