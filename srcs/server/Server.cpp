@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mlouron <mlouron@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 17:53:51 by aaiache           #+#    #+#             */
-/*   Updated: 2026/02/04 19:32:55 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/03/17 11:39:34 by mlouron          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,13 @@ void Server::setUpSocket()
 	if (_fd < 0)
 		throw std::runtime_error("Error: could not create socket.");
 
+	int reuse = 1;
+	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
+	{
+		close(_fd);
+		throw std::runtime_error("Error: could not set SO_REUSEADDR.");
+	}
+
 	/*[2]sin_family = type d'adresse IPV4, sin_port = le port*, INADRR_ANY = localhost, toutes interfaces.
 	*Le réseau utilise le big endian, alors que l’architecture de la machine peut être little endian,
 		htons -> hexa to network small */
@@ -54,11 +61,17 @@ void Server::setUpSocket()
 
 	//[3]Bind le fd avec l'adresse: BIND(socket, adresse IPV4 castee, taille de la structure).
     if (bind(_fd, (sockaddr*)&_addr, sizeof(_addr)))
+	{
+		close(_fd);
 		throw std::runtime_error("Error: could not bind port.");
+	}
 
 	//[4]Passe le socket en mode serveur, creer une file d'attente de connexions
     if (listen(_fd, 10) == -1)
+	{
+		close(_fd);
 		throw std::runtime_error("Error: could not listen");
+	}
 
 	_server_poll.fd = _fd; //s-e
 	_server_poll.events = POLLIN;// donnees en attente de lecture
