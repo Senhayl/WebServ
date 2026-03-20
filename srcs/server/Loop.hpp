@@ -6,7 +6,7 @@
 /*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:07:01 by aaiache           #+#    #+#             */
-/*   Updated: 2026/03/17 14:15:18 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/03/20 12:51:48 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class Loop
 		void handleClientWrite(size_t index);
 		void removeClient(size_t index);
 		void cleanupClients();
+		void handleClientTimeouts();
 		bool isServerFd(int fd) const;
 
 	public:

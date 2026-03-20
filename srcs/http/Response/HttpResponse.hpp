@@ -27,6 +27,7 @@ public:
 			case 403: _statusMessage = "Forbidden"; break;
 			case 404: _statusMessage = "Not Found"; break;
 			case 405: _statusMessage = "Method Not Allowed"; break;
+			case 408: _statusMessage = "Request Timeout"; break;
 			case 413: _statusMessage = "Content Too Large"; break;
 			case 500: _statusMessage = "Internal Server Error"; break;
 			case 504: _statusMessage = "Gateway Timeout"; break;

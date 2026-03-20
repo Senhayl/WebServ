@@ -6,7 +6,7 @@
 /*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:06:58 by aaiache           #+#    #+#             */
-/*   Updated: 2026/03/17 14:15:36 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/03/20 12:53:44 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,12 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <csignal>
+#include <ctime>
+#include "../http/Response/HttpResponse.hpp"
+
+static const int POLL_TIMEOUT_MS = 1000;
+static const int CLIENT_IDLE_TIMEOUT_SECONDS = 30;
+static const int REQUEST_TIMEOUT_SECONDS = 60;
 
 static volatile sig_atomic_t g_stop = 0;
 
@@ -76,6 +82,8 @@ void Loop::handleClientRead(size_t index)
 		return;
 	}
 
+	_clients[fd]->touchActivity();
+
 	_clients[fd]->getBuffer().append(buffer, bytes);
 
 	std::string& buff = _clients[fd]->getBuffer();
@@ -103,6 +111,7 @@ void Loop::handleClientRead(size_t index)
 			std::string response = getAnswer(buff, this->_servers);
 			_clients[fd]->setResponse(response);
 			_clients[fd]->getBuffer().clear();
+			_clients[fd]->resetRequestTimer();
 		}
 	}
 }
@@ -144,6 +153,7 @@ void Loop::handleClientWrite(size_t index)
 		removeClient(index);
 		return;
 	}
+	_clients[fd]->touchActivity();
 	if (response.find("Connection: close") != std::string::npos)
 	{
 		removeClient(index);
@@ -154,14 +164,44 @@ void Loop::handleClientWrite(size_t index)
 	}
 }
 
+void Loop::handleClientTimeouts()
+{
+	time_t now = time(NULL);
+	for (size_t i = 0; i < _fds.size(); ++i)
+	{
+		int fd = _fds[i].fd;
+		if (isServerFd(fd))
+			continue;
+		std::map<int, Client*>::iterator it = _clients.find(fd);
+		if (it == _clients.end())
+			continue;
+		Client* client = it->second;
+		time_t idleDuration = now - client->getLastActivity();
+		time_t requestDuration = now - client->getRequestStart();
+		bool hasPendingRequest = !client->getBuffer().empty();
+		if (idleDuration >= CLIENT_IDLE_TIMEOUT_SECONDS
+			|| (hasPendingRequest && requestDuration >= REQUEST_TIMEOUT_SECONDS))
+		{
+			if (!client->isTimedOut())
+			{
+				HttpResponse timeoutResponse = HttpResponse::createError(408, _servers[0]);
+				client->setResponse(timeoutResponse.toString());
+				client->getBuffer().clear();
+				client->setTimedOut(true);
+			}
+		}
+	}
+}
+
 void Loop::run()
 {
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
 	while (!g_stop)
 	{
-		if (poll(&_fds[0], _fds.size(), -1) < 0)
+		if (poll(&_fds[0], _fds.size(), POLL_TIMEOUT_MS) < 0)
 			continue;
+		handleClientTimeouts();
 		for (size_t i = 0; i < _fds.size(); i++)
 		{
 			if (_fds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
