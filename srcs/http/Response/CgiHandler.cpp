@@ -62,7 +62,7 @@ HttpResponse CgiHandler::execute(const HttpRequest& req, const ServerConfig& ser
 
 	struct stat st;
 	if (stat(scriptPath.c_str(), &st) != 0)
-		return HttpResponse::createError(404);
+		return HttpResponse::createError(404, server);
 
 	std::vector<std::string> envVec = buildEnv(req, scriptPath, queryString);
 	std::vector<char*> envp;
@@ -79,13 +79,13 @@ HttpResponse CgiHandler::execute(const HttpRequest& req, const ServerConfig& ser
 	int pipeIn[2];
 	int pipeOut[2];
 	if (pipe(pipeIn) < 0 || pipe(pipeOut) < 0)
-		return HttpResponse::createError(500);
+		return HttpResponse::createError(500, server);
 
 	pid_t pid = fork();
 	if (pid < 0) {
 		close(pipeIn[0]);  close(pipeIn[1]);
 		close(pipeOut[0]); close(pipeOut[1]);
-		return HttpResponse::createError(500);
+		return HttpResponse::createError(500, server);
 	}
 
 	if (pid == 0) {
@@ -124,7 +124,7 @@ HttpResponse CgiHandler::execute(const HttpRequest& req, const ServerConfig& ser
 		kill(pid, SIGKILL);
 		waitpid(pid, &status, 0);
 		close(pipeOut[0]);
-		return HttpResponse::createError(504);
+		return HttpResponse::createError(504, server);
 	}
 
 	std::string output;
@@ -142,7 +142,7 @@ HttpResponse CgiHandler::execute(const HttpRequest& req, const ServerConfig& ser
 	}
 
 	if (sepPos == std::string::npos)
-		return HttpResponse::createError(500);
+		return HttpResponse::createError(500, server);
 
 	std::string cgiHeaders = output.substr(0, sepPos);
 	std::string cgiBody = output.substr(sepPos + sep.size());
