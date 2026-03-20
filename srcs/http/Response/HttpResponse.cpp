@@ -61,6 +61,8 @@ void HttpResponse::print() const {
 	std::cout << "Headers:" << std::endl;
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); 
 		 it != _headers.end(); ++it) {
+			if (it->first == "Server")
+				continue;
 		std::cout << "  " << it->first << ": " << it->second << std::endl;
 	}
 	if (!_body.empty()) {
@@ -71,7 +73,7 @@ void HttpResponse::print() const {
 
 std::string HttpResponse::loadError(int code) {
 	std::ostringstream path;
-	path << "./srcs/http/ErrorPages/" << code << ".html";
+	path << "./srcs/http/Pages/ErrorPages/" << code << ".html";
 	std::ifstream file(path.str().c_str());
 	if (file.is_open()) {
 		std::ostringstream content;
