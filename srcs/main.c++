@@ -6,7 +6,7 @@
 /*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 19:37:46 by aaiache           #+#    #+#             */
-/*   Updated: 2026/03/17 14:48:22 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/03/20 13:01:54 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,16 +29,21 @@ static void cleanupServers(std::vector<Server*>& listeningServers)
 int main(int ac, char **av)
 {
 	std::vector<Server*> listeningServers;
+	std::string configPath;
 
-	if (ac != 2)
+	if (ac == 1)
+		configPath = "./srcs/config/default.conf";
+	else if (ac == 2)
+		configPath = av[1];
+	else
 	{
-		std::cerr << "Usage: " << av[0] << " <config_file>" << std::endl;
+		std::cerr << "Usage: " << av[0] << " [config_file]" << std::endl;
 		return 1;
 	}
 	try
 	{
 		ConfigParser parser;
-		Config config = parser.parse(av[1]);
+		Config config = parser.parse(configPath);
 		std::vector<std::string> errs;
 		std::set<int> openedPorts;
 
