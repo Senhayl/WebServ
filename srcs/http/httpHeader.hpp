@@ -49,6 +49,7 @@ std::string getAnswer(std::string rawRequest, const std::vector<ServerConfig> se
 		resp.addHeader("Connection", "close");
 		return resp.toString();
 	}
+	HttpResponse response;
 	if (!servLoc.getAllowedMethods().empty()) {
 		const std::vector<std::string>& methods = servLoc.getAllowedMethods();
 		bool allowed = false;
@@ -58,13 +59,14 @@ std::string getAnswer(std::string rawRequest, const std::vector<ServerConfig> se
 				break;
 			}
 		}
-		if (!allowed)
-			return HttpResponse::createError(405, srvConf).toString();
+		if (!allowed) {
+			response = HttpResponse::createError(405, srvConf);
+			response.print();
+			return response.toString();
+		}
 	}
 	RequestValidator validator;
 	bool isValid = validator.validate(request);
-	
-	HttpResponse response;
 
 	if (servLoc.getClientMaxBodySize() > 0 && request.getBody().size() > servLoc.getClientMaxBodySize()) {
 		return HttpResponse::createError(413, srvConf).toString();
