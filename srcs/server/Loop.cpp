@@ -6,7 +6,7 @@
 /*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/22 18:06:58 by aaiache           #+#    #+#             */
-/*   Updated: 2026/03/20 12:53:44 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/03/27 16:08:46 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,12 @@
 #include "../http/httpHeader.hpp"
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <csignal>
 #include <ctime>
 #include "../http/Response/HttpResponse.hpp"
 
-static const int POLL_TIMEOUT_MS = 1000;
+// static const int POLL_TIMEOUT_MS = 1000;
 static const int CLIENT_IDLE_TIMEOUT_SECONDS = 30;
 static const int REQUEST_TIMEOUT_SECONDS = 60;
 
@@ -81,14 +82,10 @@ void Loop::handleClientRead(size_t index)
 		removeClient(index);
 		return;
 	}
-
 	_clients[fd]->touchActivity();
-
 	_clients[fd]->getBuffer().append(buffer, bytes);
-
 	std::string& buff = _clients[fd]->getBuffer();
 	size_t headerEnd = buff.find("\r\n\r\n");
-	
 	if (headerEnd != std::string::npos)
 	{
 		// Headers are complete, check if we have the full body
@@ -108,6 +105,49 @@ void Loop::handleClientRead(size_t index)
 		// Only process if we have the complete body
 		if (currentBodySize >= contentLength)
 		{
+			RequestParser parser;
+			HttpRequest request = parser.parse(buff);
+			ServerConfig srvConf = findServerConfig(this->_servers, request.getHeader("Host"));
+			Location servLoc = findLocation(srvConf, request.getPath());
+
+			bool isCgi = false;
+			if (!servLoc.getCgiExtensions().empty() && !servLoc.getCgiPath().empty())
+			{
+				const std::string& ext = servLoc.getCgiExtensions();
+				std::string cleanPath = request.getPath();
+				size_t qpos = cleanPath.find('?');
+				if (qpos != std::string::npos)
+					cleanPath = cleanPath.substr(0, qpos);
+				if (cleanPath.size() >= ext.size() && cleanPath.substr(cleanPath.size() - ext.size()) == ext)
+					isCgi = true;
+			}
+			if (isCgi)
+			{
+				pid_t pid = fork();
+				if (pid == 0)
+				{
+					int flags = fcntl(fd, F_GETFL, 0);
+					if (flags >= 0)
+						fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
+
+					std::string response = getAnswer(buff, this->_servers);
+					size_t totalSent = 0;
+					while (totalSent < response.size())
+					{
+						ssize_t sent = send(fd, response.c_str() + totalSent, response.size() - totalSent, 0);
+						if (sent <= 0)
+							break;
+						totalSent += static_cast<size_t>(sent);
+					}
+					close(fd);
+					_exit(0);
+				}
+				if (pid > 0)
+				{
+					removeClient(index);
+					return;
+				}
+			}
 			std::string response = getAnswer(buff, this->_servers);
 			_clients[fd]->setResponse(response);
 			_clients[fd]->getBuffer().clear();
@@ -197,9 +237,10 @@ void Loop::run()
 {
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
+	signal(SIGCHLD, SIG_IGN);
 	while (!g_stop)
 	{
-		if (poll(&_fds[0], _fds.size(), POLL_TIMEOUT_MS) < 0)
+		if (poll(&_fds[0], _fds.size(), -1) < 0)
 			continue;
 		handleClientTimeouts();
 		for (size_t i = 0; i < _fds.size(); i++)

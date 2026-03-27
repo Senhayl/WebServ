@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: shessoun <shessoun@student.42.fr>          +#+  +:+       +#+         #
+#    By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/21 15:57:46 by aaiache           #+#    #+#              #
-#    Updated: 2026/03/04 13:01:39 by shessoun         ###   ########.fr        #
+#    Updated: 2026/03/26 10:07:01 by aaiache          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ CXXFLAGS    = -Wall -Wextra -Werror -std=c++98 -I./includes
 SRCS_DIR    = srcs
 OBJS_DIR    = objs
 
-SRCS        = srcs/main.c++ \
+SRCS        = srcs/main.cpp \
               srcs/config/ConfigParser.cpp \
               srcs/config/ServerConfig.cpp \
               srcs/config/Location.cpp \

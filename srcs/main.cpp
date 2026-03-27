@@ -6,7 +6,7 @@
 /*   By: aaiache <aaiache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 19:37:46 by aaiache           #+#    #+#             */
-/*   Updated: 2026/03/26 10:08:21 by aaiache          ###   ########.fr       */
+/*   Updated: 2026/03/26 10:06:45 by aaiache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int main(int ac, char **av)
 				if (!seenPorts.insert(port).second)
 				{
 					std::ostringstream oss;
-					oss << "Plusieurs serveurs ont le meme port: " << port;
+					oss << "config: duplicate listen port across servers: " << port;
 					errs.push_back(oss.str());
 				}
 			}

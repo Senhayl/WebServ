@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by aaichache, mlouron, shessoun.*
+*This project has been created as part of the 42 curriculum by aaiache, mlouron, shessoun.*
 
 ## 🕸️ Description
 

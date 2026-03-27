@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 import os
 import sys
+import time
 from urllib.parse import parse_qs
 
+
+while (1):
+    continue
 method = os.environ.get("REQUEST_METHOD", "GET")
 
 # Récupère les paramètres selon la méthode
