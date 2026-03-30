@@ -7,13 +7,56 @@
 #include "Request/RequestParser.hpp"
 #include "Request/RequestValidator.hpp"
 
-ServerConfig findServerConfig(const std::vector<ServerConfig> servers, std::string host) {
+ServerConfig findServerConfig(const std::vector<ServerConfig>& servers, std::string host) {
+	std::string hostOnly = host;
+	int hostPort = -1;
+
+	size_t colonPos = host.rfind(':');
+	if (colonPos != std::string::npos && host.find(']') == std::string::npos) {
+		hostOnly = host.substr(0, colonPos);
+		std::string portPart = host.substr(colonPos + 1);
+		if (!portPart.empty()) {
+			hostPort = std::atoi(portPart.c_str());
+		}
+	}
+
 	for (size_t i = 0; i < servers.size(); i++) {
+		if (hostPort != -1) {
+			const std::vector<int>& listens = servers[i].getListen();
+			bool listensOnHostPort = false;
+			for (size_t p = 0; p < listens.size(); ++p) {
+				if (listens[p] == hostPort) {
+					listensOnHostPort = true;
+					break;
+				}
+			}
+			if (!listensOnHostPort)
+				continue;
+		}
+
 		for (size_t j = 0; j < servers[i].getServerName().size(); j++) {
-			if (servers[i].getServerName().at(j) == host)
+			if (servers[i].getServerName().at(j) == hostOnly)
 				return servers[i];
 		}
 	}
+
+	if (hostPort != -1) {
+		for (size_t i = 0; i < servers.size(); i++) {
+			const std::vector<int>& listens = servers[i].getListen();
+			for (size_t p = 0; p < listens.size(); ++p) {
+				if (listens[p] == hostPort)
+					return servers[i];
+			}
+		}
+	}
+
+	for (size_t i = 0; i < servers.size(); i++) {
+		for (size_t j = 0; j < servers[i].getServerName().size(); j++) {
+			if (servers[i].getServerName().at(j) == hostOnly)
+				return servers[i];
+		}
+	}
+
 	return servers[0];
 }
 

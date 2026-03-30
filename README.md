@@ -91,7 +91,7 @@ webserv/
 
 ---
 
-## 🚀 Build & Run
+## 🚀 Instructions
 
 ### Build
 
@@ -106,6 +106,13 @@ make
 ```
 
 If no configuration file is provided, a default one is used.
+
+### Testing with differnet hostname
+
+```bash
+  curl -H "Host: app1.local:8080" http://127.0.0.1:8080
+```
+This is mandatory since virtual hosting is not impemented in this project
 
 ---
 
