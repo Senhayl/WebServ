@@ -2,6 +2,14 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
+static std::string getPrimaryServerName(const ServerConfig& server)
+{
+	const std::vector<std::string>& names = server.getServerName();
+	if (!names.empty() && !names[0].empty())
+		return names[0];
+	return "Webserv";
+}
+
 static std::string generateAutoindex(const std::string& dirPath, const std::string& uri) {
 	DIR* dir = opendir(dirPath.c_str());
 	if (!dir)
@@ -72,6 +80,7 @@ HttpResponse MethodHandler::handlerGET(const HttpRequest& req, const ServerConfi
 		HttpResponse resp(301);
 		resp.setStatusMessage(301);
 		resp.addHeader("Location", "https://youtu.be/DQJPt2GdoZM");
+		resp.addHeader("Server", getPrimaryServerName(server));
 		resp.addHeader("Content-Length", "0");
 		resp.addHeader("Connection", "close");
 		return resp;
@@ -92,7 +101,7 @@ HttpResponse MethodHandler::handlerGET(const HttpRequest& req, const ServerConfi
 			if (listing.empty())
 				return HttpResponse::createError(500, server);
 			std::string ct = "text/html";
-			return HttpResponse::createResponse(200, listing, ct);
+			return HttpResponse::createResponse(200, listing, ct, server);
 		}
 		return HttpResponse::createError(403, server);
 	}
@@ -107,7 +116,7 @@ HttpResponse MethodHandler::handlerGET(const HttpRequest& req, const ServerConfi
 
 	std::string body = content.str();
 	std::string contentType = getContentType(reqPath);
-	return HttpResponse::createResponse(200, body, contentType);
+	return HttpResponse::createResponse(200, body, contentType, server);
 }
 
 HttpResponse MethodHandler::handlerPOST(const HttpRequest& req, const ServerConfig& server, const Location& loc) {
@@ -141,6 +150,7 @@ HttpResponse MethodHandler::handlerPOST(const HttpRequest& req, const ServerConf
 	HttpResponse resp(201);
 	resp.setStatusMessage(201);
 	resp.addHeader("Location", req.getPath());
+	resp.addHeader("Server", getPrimaryServerName(server));
 	resp.addHeader("Connection", "close");
 	return resp;
 }
@@ -171,5 +181,6 @@ HttpResponse MethodHandler::handlerDELETE(const HttpRequest& req, const ServerCo
 
 	HttpResponse resp(204);
 	resp.setStatusMessage(204);
+	resp.addHeader("Server", getPrimaryServerName(server));
 	return resp;
 }

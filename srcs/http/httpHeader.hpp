@@ -7,6 +7,13 @@
 #include "Request/RequestParser.hpp"
 #include "Request/RequestValidator.hpp"
 
+static std::string getPrimaryServerName(const ServerConfig& server) {
+	const std::vector<std::string>& names = server.getServerName();
+	if (!names.empty() && !names[0].empty())
+		return names[0];
+	return "Webserv";
+}
+
 ServerConfig findServerConfig(const std::vector<ServerConfig>& servers, std::string host) {
 	std::string hostOnly = host;
 	int hostPort = -1;
@@ -88,6 +95,7 @@ std::string getAnswer(std::string rawRequest, const std::vector<ServerConfig> se
 		HttpResponse resp(301);
 		resp.setStatusMessage(301);
 		resp.addHeader("Location", servLoc.getReturn());
+		resp.addHeader("Server", getPrimaryServerName(srvConf));
 		resp.addHeader("Content-Length", "0");
 		resp.addHeader("Connection", "close");
 		return resp.toString();
@@ -104,6 +112,7 @@ std::string getAnswer(std::string rawRequest, const std::vector<ServerConfig> se
 		}
 		if (!allowed) {
 			response = HttpResponse::createError(405, srvConf);
+			response.addHeader("Server", getPrimaryServerName(srvConf));
 			response.print();
 			return response.toString();
 		}
@@ -112,7 +121,9 @@ std::string getAnswer(std::string rawRequest, const std::vector<ServerConfig> se
 	bool isValid = validator.validate(request);
 
 	if (servLoc.getClientMaxBodySize() > 0 && request.getBody().size() > servLoc.getClientMaxBodySize()) {
-		return HttpResponse::createError(413, srvConf).toString();
+		HttpResponse oversized = HttpResponse::createError(413, srvConf);
+		oversized.addHeader("Server", getPrimaryServerName(srvConf));
+		return oversized.toString();
 	}
 	
 	// Détection CGI
@@ -140,6 +151,8 @@ std::string getAnswer(std::string rawRequest, const std::vector<ServerConfig> se
 		else if (request.getMethod() == "DELETE")
 			response = MethodHandler::handlerDELETE(request, srvConf, servLoc);
 	}
+
+	response.addHeader("Server", getPrimaryServerName(srvConf));
 	
 	response.print();
 	return response.toString();

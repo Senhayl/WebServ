@@ -58,6 +58,7 @@ public:
 	static HttpResponse createError(int code);
 	static HttpResponse createError(int code, const ServerConfig& server);
 	static HttpResponse createResponse(int code, std::string& body, std::string& contentType);
+	static HttpResponse createResponse(int code, std::string& body, std::string& contentType, const ServerConfig& server);
 	
 	void print() const;
 

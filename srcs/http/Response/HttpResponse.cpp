@@ -1,5 +1,13 @@
 #include "HttpResponse.hpp"
 
+static std::string getServerHeaderValue(const ServerConfig& server)
+{
+	const std::vector<std::string>& names = server.getServerName();
+	if (!names.empty() && !names[0].empty())
+		return names[0];
+	return "Webserv";
+}
+
 HttpResponse::HttpResponse() : _statusCode(200) {}
 
 HttpResponse::HttpResponse(int statusCode) : _statusCode(statusCode) {}
@@ -61,8 +69,6 @@ void HttpResponse::print() const {
 	std::cout << "Headers:" << std::endl;
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); 
 		 it != _headers.end(); ++it) {
-			if (it->first == "Server")
-				continue;
 		std::cout << "  " << it->first << ": " << it->second << std::endl;
 	}
 	if (!_body.empty()) {
@@ -119,7 +125,7 @@ HttpResponse HttpResponse::createError(int code, const ServerConfig& server) {
 	resp.setStatusMessage(code);
 	resp.setBody(resp.loadError(code, server));
 	resp.addHeader("Date", resp.getCurrDate());
-	resp.addHeader("Server", "Webserv");
+	resp.addHeader("Server", getServerHeaderValue(server));
 	resp.addHeader("Content-Type", "text/html");
 	resp.addHeader("Connection", "close");
 	std::ostringstream cl;
@@ -134,6 +140,20 @@ HttpResponse HttpResponse::createResponse(int code, std::string& body, std::stri
 	resp.setBody(body);
 	resp.addHeader("Date", resp.getCurrDate());
 	resp.addHeader("Server", "Webserv");
+	resp.addHeader("Connection", "keep-alive");
+	resp.addHeader("Content-Type", contentType);
+	std::ostringstream cl;
+	cl << body.size();
+	resp.addHeader("Content-Length", cl.str());
+	return resp;
+}
+
+HttpResponse HttpResponse::createResponse(int code, std::string& body, std::string& contentType, const ServerConfig& server) {
+	HttpResponse resp(code);
+	resp.setStatusMessage(code);
+	resp.setBody(body);
+	resp.addHeader("Date", resp.getCurrDate());
+	resp.addHeader("Server", getServerHeaderValue(server));
 	resp.addHeader("Connection", "keep-alive");
 	resp.addHeader("Content-Type", contentType);
 	std::ostringstream cl;
