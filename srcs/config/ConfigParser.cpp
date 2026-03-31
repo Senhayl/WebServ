@@ -13,6 +13,30 @@ static bool isAllDigits(const std::string& s)
     return true;
 }
 
+static bool parseListenToken(const std::string& token, int& port)
+{
+	if (isAllDigits(token))
+	{
+		port = std::atoi(token.c_str());
+		return true;
+	}
+
+	std::string::size_type colonPos = token.find(':');
+	if (colonPos == std::string::npos || token.find(':', colonPos + 1) != std::string::npos)
+		return false;
+
+	const std::string host = token.substr(0, colonPos);
+	const std::string portToken = token.substr(colonPos + 1);
+
+	if (host != "0.0.0.0" && host != "127.0.0.1")
+		return false;
+	if (!isAllDigits(portToken))
+		return false;
+
+	port = std::atoi(portToken.c_str());
+	return true;
+}
+
 //Readfile from filepath and copy it into a string
 std::string ConfigParser::readFile(const std::string& filepath) {
 	std::ifstream file(filepath.c_str());
@@ -164,7 +188,9 @@ ServerConfig ConfigParser::parseServerBlock(std::vector<std::string>::iterator& 
 			++it;
 			while (*it != ";")
 			{
-				int port = std::atoi(it->c_str());	
+				int port = -1;
+				if (!parseListenToken(*it, port))
+					port = -1;
 				server.addListen(port);
 				++it;
 			}
